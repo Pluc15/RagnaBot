@@ -2,15 +2,17 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 namespace RagnaBot.Data
 {
-    public class Repository
+    public class Repository : IDisposable
     {
         private readonly Config _config;
         private Model _data;
+        private FileStream _fileStream;
 
         public Repository(
             Config config
@@ -21,21 +23,37 @@ namespace RagnaBot.Data
 
         public async Task Load()
         {
-            if (File.Exists(_config.SaveFile))
+            if (_fileStream != null)
+                throw new InvalidOperationException("Init called twice?");
+
+            var exists = File.Exists(_config.SaveFile);
+            _fileStream = File.Open(_config.SaveFile, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+
+            if (exists)
             {
-                var data = await File.ReadAllTextAsync(_config.SaveFile);
-                _data = JsonConvert.DeserializeObject<Model>(data);
+                var buf = new byte[1024];
+                int c;
+                var sb = new StringBuilder();
+                while ((c = _fileStream.Read(buf, 0, buf.Length)) > 0)
+                    sb.Append(Encoding.UTF8.GetString(buf, 0, c));
+                _data = JsonConvert.DeserializeObject<Model>(sb.ToString());
             }
             else
             {
                 _data = new Model();
                 Seed.Init(_data);
+                await SaveAsync();
             }
         }
 
         public Task SaveAsync()
         {
-            return File.WriteAllTextAsync(_config.SaveFile, JsonConvert.SerializeObject(_data, Formatting.Indented));
+            var data = JsonConvert.SerializeObject(_data, Formatting.Indented);
+            var bytes = Encoding.UTF8.GetBytes(data);
+
+            _fileStream.SetLength(0);
+            _fileStream.Position = 0;
+            return _fileStream.WriteAsync(bytes, 0, bytes.Length);
         }
 
         public Timer GetTimer(
@@ -96,6 +114,11 @@ namespace RagnaBot.Data
         )
         {
             _data.DashboardMessageIds[page] = messageId;
+        }
+
+        public void Dispose()
+        {
+            _fileStream?.Dispose();
         }
     }
 }
