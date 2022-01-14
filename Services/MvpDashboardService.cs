@@ -78,8 +78,8 @@ namespace RagnaBot.Services
             newDashboardContent.AppendLine($"__**Dashboard Page {page}**__");
             foreach (var timer in _repository.GetTimers()
                          .Where(t => t.Page == page)
-                         .OrderBy(t => !t.NextSpawn.HasValue)
-                         .ThenBy(t => t.NextSpawn))
+                         .Where(t => t.NextSpawn.HasValue)
+                         .OrderBy(t => t.NextSpawn))
             {
                 var spawnTime = timer.NextSpawn.HasValue
                     ? $"<t:{timer.NextSpawn.Value.ToEpoch()}:R>"

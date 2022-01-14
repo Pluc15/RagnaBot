@@ -53,8 +53,9 @@ namespace RagnaBot.Services
             foreach (var timer in _repository.GetTimers().Where(t => t.IsReminderDue))
             {
                 var channel = await _discordClient.GetChannelAsync(_config.ChannelId);
+                var role = channel.Guild.GetRole(_config.TrackerRoleId);
                 var message = await new DiscordMessageBuilder()
-                    .WithContent(Messages.MvpSpawningSoon(timer, _config.TrackerRoleId))
+                    .WithContent(Messages.MvpSpawningSoon(timer, role))
                     .WithAllowedMention(new RoleMention(_config.TrackerRoleId))
                     .SendAsync(channel);
                 _repository.AddMessageToCleanup(

@@ -1,4 +1,5 @@
-﻿using RagnaBot.Data;
+﻿using DSharpPlus.Entities;
+using RagnaBot.Data;
 
 namespace RagnaBot.Utils
 {
@@ -18,7 +19,7 @@ namespace RagnaBot.Utils
 
         public static string MvpSpawningSoon(
             Timer timer,
-            ulong trackerRoleId
+            DiscordRole trackerRole
         )
         {
             var spawn = timer.NextSpawn.HasValue
@@ -26,7 +27,7 @@ namespace RagnaBot.Utils
                 : "`null`";
             return
                 $"**{timer.MvpName}** on map `{timer.Map}` will spawn in {spawn} with a variance of {timer.RespawnVariance.TotalMinutes} minutes.\n" +
-                $"<@&{trackerRoleId}>";
+                trackerRole.Mention;
         }
 
         public static string UnknownMvp()
