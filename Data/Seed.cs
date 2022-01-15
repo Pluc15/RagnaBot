@@ -391,7 +391,7 @@ namespace RagnaBot.Data
                     MvpName = "Osiris",
                     Map = "moc_pryd04",
                     RespawnDuration = TimeSpan.FromMinutes(60),
-                    RespawnVariance = TimeSpan.FromMinutes(180 - 60),
+                    RespawnVariance = TimeSpan.FromMinutes(10),
                     RespawnReminder = TimeSpan.FromMinutes(5),
                     RagnarokId = 1038
                 }
