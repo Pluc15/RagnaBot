@@ -30,7 +30,7 @@ namespace RagnaBot.Modules
             _logger = logger;
         }
 
-        [Command("mvp2")]
+        [Command("mvp")]
         public async Task RegisterMvpDeath(
             CommandContext ctx,
             string mvpKey,
@@ -71,7 +71,7 @@ namespace RagnaBot.Modules
             if (string.IsNullOrEmpty(timeOfDeath))
                 return DateTime.UtcNow;
 
-            var tombFormat = Regex.Match(timeOfDeath, "^([0-9]|1[0-9]|2[0-3]):?([0-5][0-9])$");
+            var tombFormat = Regex.Match(timeOfDeath, "^([0-9]|[0-1][0-9]|2[0-3])[:h]?([0-5][0-9])$");
             if (tombFormat.Success)
             {
                 var hours = Convert.ToInt32(tombFormat.Groups[1].Value);
