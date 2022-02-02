@@ -99,6 +99,7 @@ namespace RagnaBot.Data
                     MvpKeys = new[]
                     {
                         "doppel",
+                        "dopple",
                         "doppelganger"
                     },
                     MvpName = "Doppelganger",
@@ -165,6 +166,7 @@ namespace RagnaBot.Data
                     MvpKeys = new[]
                     {
                         "bio2",
+                        "ygnizem",
                         "egnigem",
                         "egnigem cenia"
                     },
@@ -199,7 +201,8 @@ namespace RagnaBot.Data
                     Page = 1,
                     MvpKeys = new[]
                     {
-                        "garm"
+                        "garm",
+                        "hati"
                     },
                     MvpName = "Garm",
                     Map = "xmas_fild01",
@@ -267,6 +270,7 @@ namespace RagnaBot.Data
                     MvpKeys = new[]
                     {
                         "lod",
+                        "lord of dead",
                         "lord of the dead"
                     },
                     MvpName = "Lord of the Dead",
@@ -335,6 +339,7 @@ namespace RagnaBot.Data
                     MvpKeys = new[]
                     {
                         "oh2",
+                        "OH24",
                         "orchero2"
                     },
                     MvpName = "Orc Hero",
@@ -421,7 +426,9 @@ namespace RagnaBot.Data
                     {
                         "phree1",
                         "phreeo1",
-                        "phreeoni1"
+                        "phreeoni1",
+                        "phreeo15",
+                        "Phreeoni15",
                     },
                     MvpName = "Phreeoni",
                     Map = "moc_fild15",
@@ -439,7 +446,9 @@ namespace RagnaBot.Data
                     {
                         "phree2",
                         "phreeo2",
-                        "phreeoni2"
+                        "phreeoni2",
+                        "phreeo17",
+                        "Phreeoni17",
                     },
                     MvpName = "Phreeoni",
                     Map = "moc_fild17",
@@ -489,6 +498,7 @@ namespace RagnaBot.Data
                     Page = 2,
                     MvpKeys = new[]
                     {
+                        "SK",
                         "stormy",
                         "stormyknight"
                     },
@@ -523,6 +533,7 @@ namespace RagnaBot.Data
                     Page = 2,
                     MvpKeys = new[]
                     {
+                        "TT",
                         "thana",
                         "thanatos"
                     },
@@ -559,12 +570,13 @@ namespace RagnaBot.Data
                     MvpKeys = new[]
                     {
                         "vr",
+                        "randgris",
                         "valkyrierandgris"
                     },
                     MvpName = "Valkyrie Randgris",
                     Map = "odin_tem03",
                     RespawnDuration = TimeSpan.FromMinutes(480),
-                    RespawnVariance = TimeSpan.FromMinutes(840 - 480),
+                    RespawnVariance = TimeSpan.FromMinutes(490 - 480),
                     RespawnReminder = TimeSpan.FromMinutes(20),
                     RagnarokId = 1765
                 }
@@ -593,7 +605,9 @@ namespace RagnaBot.Data
                     MvpKeys = new[]
                     {
                         "wl",
-                        "whitelady"
+                        "whitelady",
+                        "bacso",
+                        "Bacsojin"
                     },
                     MvpName = "White Lady",
                     Map = "lou_dun03",
@@ -798,6 +812,7 @@ namespace RagnaBot.Data
                     Page = 3,
                     MvpKeys = new[]
                     {
+                        "MP",
                         "mayap",
                         "mayapurple"
                     },
@@ -815,6 +830,7 @@ namespace RagnaBot.Data
                     Page = 3,
                     MvpKeys = new[]
                     {
+                        "MP1",
                         "mayapgd1",
                         "mayapurplegd1"
                     },
@@ -832,6 +848,7 @@ namespace RagnaBot.Data
                     Page = 3,
                     MvpKeys = new[]
                     {
+                        "MP2",
                         "mayapgd2",
                         "mayapurplegd2"
                     },
@@ -849,6 +866,7 @@ namespace RagnaBot.Data
                     Page = 3,
                     MvpKeys = new[]
                     {
+                        "MP3",
                         "mayapgd3",
                         "mayapurplegd3"
                     },
