@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
@@ -30,55 +30,65 @@ namespace RagnaBot.Services
             _logger = logger;
         }
 
-        public async Task<Timer> RegisterTimeOfDeath(
+        public async Task<(Timer Timer, MvpInfo MvpInfo)> RegisterTimeOfDeath(
             string mvpKey,
-            DateTime timeOfDeath
+            DateTime timeOfDeath,
+            DiscordUser user
         )
         {
-            var timer = _repository.GetTimer(mvpKey);
-            if (timer == null)
-                throw new MvpTimerNotFoundException();
+            var mvpInfo = _repository.SearchMvpInfo(mvpKey);
+            if (mvpInfo == null)
+                throw new UnknownMvpException();
 
-            timer.TimeOfDeath = timeOfDeath;
-            timer.ReminderSent = false;
-            await _repository.SaveAsync();
+            // TODO Check if it already exist - ask for confirmation
 
-            _logger.LogInformation($"Timer updated for {timer.MvpKeys[0]} to {timer.TimeOfDeath}");
+            var timer = await _repository.CreateTimer(mvpInfo, timeOfDeath, user);
 
-            return timer;
+            _logger.LogInformation($"Timer updated for '{mvpInfo.Id}' to '{timer.TimeOfDeath}' by '{user.Username}'");
+
+            return (timer, mvpInfo);
         }
 
         public async Task SendReminders()
         {
-            foreach (var timer in _repository.GetTimers().Where(t => t.IsReminderDue))
+            foreach (var timer in _repository.GetTimersWithReminderDue())
             {
+                var mvpInfo = _repository.GetMvpInfoById(timer.Id);
                 var channel = await _discordClient.GetChannelAsync(_config.ChannelId);
-                var role = channel.Guild.GetRole(_config.TrackerRoleId);
-                var message = await new DiscordMessageBuilder()
-                    .WithContent(Messages.MvpSpawningSoon(timer, role))
-                    .WithAllowedMention(new RoleMention(_config.TrackerRoleId))
+                var mentionRoles = new List<DiscordRole>
+                {
+                    channel.Guild.GetRole(_config.TrackerRoleId)
+                };
+                if (mvpInfo.IsHighEnd)
+                {
+                    mentionRoles.Add(channel.Guild.GetRole(_config.HighEndMvpTeamRoleId));
+                }
+
+                var message = await Messages.MvpSpawningSoon(
+                        _config,
+                        timer,
+                        mvpInfo,
+                        mentionRoles
+                    )
                     .SendAsync(channel);
-                _repository.AddMessageToCleanup(
+
+                await _repository.AddMessageToCleanup(
                     message.Id,
-                    timer.NextSpawn!.Value + timer.RespawnVariance + TimeSpan.FromMinutes(5)
+                    SpawnCalculator.GetNextSpawn(timer, mvpInfo) + mvpInfo.RespawnVariance + TimeSpan.FromMinutes(5)
                 );
 
-                timer.ReminderSent = true;
-                await _repository.SaveAsync();
+                await _repository.SetReminderSent(timer.Id);
 
-                _logger.LogInformation($"Reminder sent for {timer.MvpKeys[0]}");
+                _logger.LogInformation($"Reminder sent for {timer.Id}");
             }
         }
 
         public async Task DeleteOldTimers()
         {
-            foreach (var timer in _repository.GetTimers().Where(t => t.IsOldTimer))
+            foreach (var timer in _repository.GetTimersOldTimers())
             {
-                timer.TimeOfDeath = null;
-                timer.ReminderSent = false;
-                await _repository.SaveAsync();
-
-                _logger.LogInformation($"Old timer deleted for {timer.MvpKeys[0]}");
+                await _repository.DeleteTimer(timer.Id);
+                _logger.LogInformation($"Old timer deleted for {timer.Id}");
             }
         }
     }

@@ -1,18 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using RagnaBot.Models;
 
 namespace RagnaBot.Data
 {
-    public class Repository : IDisposable
+    public partial class Repository : IDisposable
     {
         private readonly Config _config;
-        private Model _data;
+        private DatabaseModel _data;
         private FileStream _fileStream;
+
+        private static readonly JsonSerializerSettings JsonSerializerSettings = new()
+        {
+            NullValueHandling = NullValueHandling.Include
+        };
 
         public Repository(
             Config config
@@ -36,84 +40,23 @@ namespace RagnaBot.Data
                 var sb = new StringBuilder();
                 while ((c = _fileStream.Read(buf, 0, buf.Length)) > 0)
                     sb.Append(Encoding.UTF8.GetString(buf, 0, c));
-                _data = JsonConvert.DeserializeObject<Model>(sb.ToString());
+                _data = JsonConvert.DeserializeObject<DatabaseModel>(sb.ToString());
             }
             else
             {
-                _data = new Model();
-                Seed.Init(_data);
+                _data = new DatabaseModel();
                 await SaveAsync();
             }
         }
 
         public Task SaveAsync()
         {
-            var data = JsonConvert.SerializeObject(_data, Formatting.Indented);
+            var data = JsonConvert.SerializeObject(_data, Formatting.Indented, JsonSerializerSettings);
             var bytes = Encoding.UTF8.GetBytes(data);
 
             _fileStream.SetLength(0);
             _fileStream.Position = 0;
             return _fileStream.WriteAsync(bytes, 0, bytes.Length);
-        }
-
-        public Timer GetTimer(
-            string mvpKey
-        )
-        {
-            return _data.Timers.SingleOrDefault(t => t.MvpKeys.Any(k => k == mvpKey));
-        }
-
-        public IEnumerable<Timer> GetTimers()
-        {
-            return _data.Timers.ToList();
-        }
-
-        public void AddMessageToCleanup(
-            ulong id,
-            DateTime deletionTime
-        )
-        {
-            _data.MessagesToCleanup.Add(
-                new MessageReference
-                {
-                    Id = id,
-                    DeletionTime = deletionTime
-                }
-            );
-        }
-
-        public IEnumerable<MessageReference> GetMessageToCleanups()
-        {
-            return _data.MessagesToCleanup.Where(m => m.DeletionTime < DateTime.UtcNow).ToList();
-        }
-
-        public void RemoveMessageToCleanup(
-            MessageReference messageReference
-        )
-        {
-            _data.MessagesToCleanup.Remove(messageReference);
-        }
-
-        public bool HasDashboardMessageId(
-            int page
-        )
-        {
-            return _data.DashboardMessageIds.ContainsKey(page);
-        }
-
-        public ulong GetDashboardMessageId(
-            int page
-        )
-        {
-            return _data.DashboardMessageIds[page];
-        }
-
-        public void UpdateDashboardMessageId(
-            int page,
-            ulong messageId
-        )
-        {
-            _data.DashboardMessageIds[page] = messageId;
         }
 
         public void Dispose()

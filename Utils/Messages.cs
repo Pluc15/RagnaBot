@@ -1,33 +1,41 @@
-﻿using DSharpPlus.Entities;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Serialization;
+using DSharpPlus.Entities;
 using RagnaBot.Data;
 
 namespace RagnaBot.Utils
 {
     public static class Messages
     {
-        public static string TimerRegistered(
-            Timer timer
+        public static DiscordMessageBuilder TimerRegistered(
+            Timer timer,
+            MvpInfo mvpInfo
         )
         {
-            var spawn = timer.NextSpawn.HasValue
-                ? $"<t:{timer.NextSpawn.Value.ToEpoch()}:R>"
-                : "`null`";
-            return
-                $"**{timer.MvpName}** on map `{timer.Map}` will spawn {spawn} with a variance of {timer.RespawnVariance.TotalMinutes} minutes.\n" +
-                $"A reminder will occur {timer.RespawnReminder.TotalMinutes} minutes before spawn window.";
+            var nextSpawn = SpawnCalculator.GetNextSpawn(timer, mvpInfo);
+            return new DiscordMessageBuilder()
+                .WithContent(
+                    $"**{mvpInfo.MvpName}** on map `{mvpInfo.Map}` will spawn <t:{nextSpawn.ToEpoch()}:R> with a variance of {mvpInfo.RespawnVariance.TotalMinutes} minutes.\n" +
+                    $"A reminder will occur {mvpInfo.RespawnReminder.TotalMinutes} minutes before spawn window."
+                );
         }
 
-        public static string MvpSpawningSoon(
+        public static DiscordMessageBuilder MvpSpawningSoon(
+            Config config,
             Timer timer,
-            DiscordRole trackerRole
+            MvpInfo mvpInfo,
+            IEnumerable<DiscordRole> mentions
         )
         {
-            var spawn = timer.NextSpawn.HasValue
-                ? $"<t:{timer.NextSpawn.Value.ToEpoch()}:R>"
-                : "`null`";
-            return
-                $"**{timer.MvpName}** on map `{timer.Map}` will spawn in {spawn} with a variance of {timer.RespawnVariance.TotalMinutes} minutes.\n" +
-                trackerRole.Mention;
+            var nextSpawn = SpawnCalculator.GetNextSpawn(timer, mvpInfo);
+            return new DiscordMessageBuilder()
+                .WithContent(
+                    $"**{mvpInfo.MvpName}** on map `{mvpInfo.Map}` will spawn in <t:{nextSpawn.ToEpoch()}:R> with a variance of {mvpInfo.RespawnVariance.TotalMinutes} minutes.\n" +
+                    string.Join("\n", mentions.Select(m => m.Mention))
+                )
+                .WithAllowedMention(new RoleMention(config.TrackerRoleId))
+                .WithAllowedMention(new RoleMention(config.HighEndMvpTeamRoleId));
         }
 
         public static string UnknownMvp()

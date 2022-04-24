@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Text;
+﻿using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
@@ -34,14 +33,13 @@ namespace RagnaBot.Services
             var channel = await _discordClient.GetChannelAsync(_config.ChannelId);
 
             if (!_repository.HasDashboardMessageId(0))
-                _repository.UpdateDashboardMessageId(0, (await channel.SendMessageAsync("Dashboard placeholder 1")).Id);
+                await _repository.UpdateDashboardMessageId(0, (await channel.SendMessageAsync("Dashboard placeholder 1")).Id);
             if (!_repository.HasDashboardMessageId(1))
-                _repository.UpdateDashboardMessageId(1, (await channel.SendMessageAsync("Dashboard placeholder 2")).Id);
+                await _repository.UpdateDashboardMessageId(1, (await channel.SendMessageAsync("Dashboard placeholder 2")).Id);
             if (!_repository.HasDashboardMessageId(2))
-                _repository.UpdateDashboardMessageId(2, (await channel.SendMessageAsync("Dashboard placeholder 3")).Id);
+                await _repository.UpdateDashboardMessageId(2, (await channel.SendMessageAsync("Dashboard placeholder 3")).Id);
             if (!_repository.HasDashboardMessageId(3))
-                _repository.UpdateDashboardMessageId(3, (await channel.SendMessageAsync("Dashboard placeholder 4")).Id);
-            await _repository.SaveAsync();
+                await _repository.UpdateDashboardMessageId(3, (await channel.SendMessageAsync("Dashboard placeholder 4")).Id);
 
             _logger.LogInformation("Dashboard initiated");
         }
@@ -50,45 +48,92 @@ namespace RagnaBot.Services
         {
             var channel = await _discordClient.GetChannelAsync(_config.ChannelId);
 
-            await UpdatePage(channel, _repository.GetDashboardMessageId(0), 1);
-            await UpdatePage(channel, _repository.GetDashboardMessageId(1), 2);
-            await UpdatePage(channel, _repository.GetDashboardMessageId(2), 3);
-            await UpdatePage(channel, _repository.GetDashboardMessageId(3), 4);
+            await UpdateDashboardSpawned(channel, _repository.GetDashboardMessageId(0));
+            await UpdateDashboardInWindow(channel, _repository.GetDashboardMessageId(1));
+            await UpdateDashboardSpawningSoon(channel, _repository.GetDashboardMessageId(2));
+            await UpdateDashboardSpawningInAWhile(channel, _repository.GetDashboardMessageId(3));
 
             _logger.LogInformation("Dashboard updated");
         }
 
-        private async Task UpdatePage(
+        private async Task UpdateDashboardSpawned(
             DiscordChannel channel,
-            ulong messageId,
-            int page
-        )
-        {
-            var message = await channel.GetMessageAsync(messageId);
-            await new DiscordMessageBuilder()
-                .WithContent(BuildDashboardContent(page))
-                .ModifyAsync(message);
-        }
-
-        private string BuildDashboardContent(
-            int page
+            ulong messageId
         )
         {
             var newDashboardContent = new StringBuilder();
-            newDashboardContent.AppendLine($"__**Dashboard Page {page}**__");
-            foreach (var timer in _repository.GetTimers()
-                         .Where(t => t.Page == page)
-                         .Where(t => t.NextSpawn.HasValue)
-                         .OrderBy(t => t.NextSpawn))
+            newDashboardContent.AppendLine("__**MVPs Recently Spawned**__");
+            foreach (var timer in _repository.GetTimersSpawned())
             {
-                var spawnTime = timer.NextSpawn.HasValue
-                    ? $"<t:{timer.NextSpawn.Value.ToEpoch()}:R>"
-                    : "`unknown`";
-
-                newDashboardContent.AppendLine($"`{timer.MvpName}` on map `{timer.Map}` will spawn {spawnTime}");
+                var mvpInfo = _repository.GetMvpInfoById(timer.Id);
+                var nextSpawnWindowEnd = SpawnCalculator.GetNextSpawnWindowEnd(timer, mvpInfo);
+                newDashboardContent.AppendLine($"`{mvpInfo.MvpName}` on map `{mvpInfo.Map}` spawn windows ended <t:{nextSpawnWindowEnd.ToEpoch()}:R>");
             }
 
-            return newDashboardContent.ToString();
+            var message = await channel.GetMessageAsync(messageId);
+            await new DiscordMessageBuilder()
+                .WithContent(newDashboardContent.ToString())
+                .ModifyAsync(message);
+        }
+
+        private async Task UpdateDashboardInWindow(
+            DiscordChannel channel,
+            ulong messageId
+        )
+        {
+            var newDashboardContent = new StringBuilder();
+            newDashboardContent.AppendLine("__**MVPs In Window**__");
+            foreach (var timer in _repository.GetTimersInWindow())
+            {
+                var mvpInfo = _repository.GetMvpInfoById(timer.Id);
+                var nextSpawnWindowEnd = SpawnCalculator.GetNextSpawnWindowEnd(timer, mvpInfo);
+                newDashboardContent.AppendLine($"`{mvpInfo.MvpName}` on map `{mvpInfo.Map}` is in window ending <t:{nextSpawnWindowEnd.ToEpoch()}:R>");
+            }
+
+            var message = await channel.GetMessageAsync(messageId);
+            await new DiscordMessageBuilder()
+                .WithContent(newDashboardContent.ToString())
+                .ModifyAsync(message);
+        }
+
+        private async Task UpdateDashboardSpawningSoon(
+            DiscordChannel channel,
+            ulong messageId
+        )
+        {
+            var newDashboardContent = new StringBuilder();
+            newDashboardContent.AppendLine("__**MVPs Spawning Soon**__");
+            foreach (var timer in _repository.GetTimersSpawningSoon())
+            {
+                var mvpInfo = _repository.GetMvpInfoById(timer.Id);
+                var nextSpawn = SpawnCalculator.GetNextSpawn(timer, mvpInfo);
+                newDashboardContent.AppendLine($"`{mvpInfo.MvpName}` on map `{mvpInfo.Map}` will be in spawn window <t:{nextSpawn.ToEpoch()}:R>");
+            }
+
+            var message = await channel.GetMessageAsync(messageId);
+            await new DiscordMessageBuilder()
+                .WithContent(newDashboardContent.ToString())
+                .ModifyAsync(message);
+        }
+
+        private async Task UpdateDashboardSpawningInAWhile(
+            DiscordChannel channel,
+            ulong messageId
+        )
+        {
+            var newDashboardContent = new StringBuilder();
+            newDashboardContent.AppendLine("__**MVPs Spawning In A While**__");
+            foreach (var timer in _repository.GetTimersSpawningInAWhile())
+            {
+                var mvpInfo = _repository.GetMvpInfoById(timer.Id);
+                var nextSpawn = SpawnCalculator.GetNextSpawn(timer, mvpInfo);
+                newDashboardContent.AppendLine($"`{mvpInfo.MvpName}` on map `{mvpInfo.Map}` will be in spawn window <t:{nextSpawn.ToEpoch()}:R>");
+            }
+
+            var message = await channel.GetMessageAsync(messageId);
+            await new DiscordMessageBuilder()
+                .WithContent(newDashboardContent.ToString())
+                .ModifyAsync(message);
         }
     }
 }

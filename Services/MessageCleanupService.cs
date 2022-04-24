@@ -32,8 +32,7 @@ namespace RagnaBot.Services
             DateTime deletionTime
         )
         {
-            _repository.AddMessageToCleanup(message.Id, deletionTime);
-            return _repository.SaveAsync();
+            return _repository.AddMessageToCleanup(message.Id, deletionTime);
         }
 
         public async Task Cleanup()
@@ -45,15 +44,14 @@ namespace RagnaBot.Services
                     var channel = await _discordClient.GetChannelAsync(_config.ChannelId);
                     var message = await channel.GetMessageAsync(messageRef.Id);
                     await message.DeleteAsync();
-                    _logger.LogInformation($"Message deleted: '{message.Content}'");
+                    _logger.LogInformation($"Message deleted: '{message.Content}' by '{message.Author.Username}'");
                 }
                 catch (DSharpPlus.Exceptions.NotFoundException ex)
                 {
                     _logger.LogWarning(ex, "Failed to cleanup a message");
                 }
 
-                _repository.RemoveMessageToCleanup(messageRef);
-                await _repository.SaveAsync();
+                await _repository.RemoveMessageToCleanup(messageRef);
             }
         }
 
@@ -68,7 +66,7 @@ namespace RagnaBot.Services
                     await QueueForCleanup(args.Message, DateTime.UtcNow.AddSeconds(5));
             };
 
-            _logger.LogInformation($"AutoCleanup registered ");
+            _logger.LogInformation("AutoCleanup registered");
         }
     }
 }

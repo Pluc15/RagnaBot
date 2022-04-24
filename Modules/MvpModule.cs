@@ -41,12 +41,12 @@ namespace RagnaBot.Modules
             {
                 mvpKey = mvpKey.Trim().ToLower().Replace(" ", "");
                 var dateTimeOfDeath = ParseTimeOfDeath(timeOfDeath);
-                var timer = await _mvpTimerService.RegisterTimeOfDeath(mvpKey, dateTimeOfDeath);
-                var message = await ctx.Channel.SendMessageAsync(Messages.TimerRegistered(timer));
+                var (timer, mvpInfo) = await _mvpTimerService.RegisterTimeOfDeath(mvpKey, dateTimeOfDeath, ctx.User);
+                var message = await Messages.TimerRegistered(timer, mvpInfo).SendAsync(ctx.Channel);
                 await _messageCleanupService.QueueForCleanup(message, DateTime.UtcNow.AddSeconds(30));
                 await _mvpDashboardService.Update();
             }
-            catch (MvpTimerNotFoundException ex)
+            catch (UnknownMvpException ex)
             {
                 _logger.LogWarning(ex, ex.Message);
                 var error = await ctx.Channel.SendMessageAsync(ex.Message);
