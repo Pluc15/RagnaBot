@@ -13,42 +13,48 @@ namespace RagnaBot.Data
         {
             return GetAllTimersWithMvpInfo()
                 .Where(o => SpawnCalculator.IsSpawningInAWhile(o.Timer, o.MvpInfo))
-                .Select(o => o.Timer);
+                .Select(o => o.Timer)
+                .ToList();
         }
 
         public IEnumerable<Timer> GetTimersSpawningSoon()
         {
             return GetAllTimersWithMvpInfo()
                 .Where(o => SpawnCalculator.IsSpawningSoon(o.Timer, o.MvpInfo))
-                .Select(o => o.Timer);
+                .Select(o => o.Timer)
+                .ToList();
         }
 
         public IEnumerable<Timer> GetTimersWithReminderDue()
         {
             return GetAllTimersWithMvpInfo()
                 .Where(o => SpawnCalculator.IsReminderDue(o.Timer, o.MvpInfo))
-                .Select(o => o.Timer);
+                .Select(o => o.Timer)
+                .ToList();
         }
 
         public IEnumerable<Timer> GetTimersInWindow()
         {
             return GetAllTimersWithMvpInfo()
                 .Where(o => SpawnCalculator.IsInWindow(o.Timer, o.MvpInfo))
-                .Select(o => o.Timer);
+                .Select(o => o.Timer)
+                .ToList();
         }
 
         public IEnumerable<Timer> GetTimersSpawned()
         {
             return GetAllTimersWithMvpInfo()
                 .Where(o => SpawnCalculator.IsSpawned(o.Timer, o.MvpInfo))
-                .Select(o => o.Timer);
+                .Select(o => o.Timer)
+                .ToList();
         }
 
         public IEnumerable<Timer> GetTimersOldTimers()
         {
             return GetAllTimersWithMvpInfo()
                 .Where(o => SpawnCalculator.IsOldTimer(o.Timer, o.MvpInfo))
-                .Select(o => o.Timer);
+                .Select(o => o.Timer)
+                .ToList();
         }
 
         public Task DeleteTimer(

@@ -24,7 +24,9 @@ namespace RagnaBot.Data
 
         public IEnumerable<MessageReference> GetMessageToCleanups()
         {
-            return _data.MessagesToCleanup.Where(m => m.DeletionTime < DateTime.UtcNow).ToList();
+            return _data.MessagesToCleanup
+                .Where(m => m.DeletionTime < DateTime.UtcNow)
+                .ToList();
         }
 
         public Task RemoveMessageToCleanup(

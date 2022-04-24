@@ -3,7 +3,6 @@ using System.IO;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Polly;
-using Polly.Retry;
 using RagnaBot.Models;
 
 namespace RagnaBot.Data
@@ -13,7 +12,7 @@ namespace RagnaBot.Data
         private readonly Config _config;
         private DatabaseModel _data;
 
-        private Policy _saveRetryPolicy = Policy
+        private readonly Policy _saveRetryPolicy = Policy
             .Handle<Exception>()
             .RetryForever();
 
