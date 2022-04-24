@@ -1,9 +1,8 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 
 namespace RagnaBot.Data
 {
-    public partial class Repository : IDisposable
+    public partial class Repository
     {
         public MvpInfo GetMvpInfoById(
             string id

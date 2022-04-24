@@ -7,7 +7,7 @@ using RagnaBot.Utils;
 
 namespace RagnaBot.Data
 {
-    public partial class Repository : IDisposable
+    public partial class Repository
     {
         public IEnumerable<Timer> GetTimersSpawningInAWhile()
         {

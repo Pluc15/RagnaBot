@@ -1,17 +1,21 @@
 ﻿using System;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Polly;
+using Polly.Retry;
 using RagnaBot.Models;
 
 namespace RagnaBot.Data
 {
-    public partial class Repository : IDisposable
+    public partial class Repository
     {
         private readonly Config _config;
         private DatabaseModel _data;
-        private FileStream _fileStream;
+
+        private Policy _saveRetryPolicy = Policy
+            .Handle<Exception>()
+            .RetryForever();
 
         private static readonly JsonSerializerSettings JsonSerializerSettings = new()
         {
@@ -27,41 +31,26 @@ namespace RagnaBot.Data
 
         public async Task Load()
         {
-            if (_fileStream != null)
-                throw new InvalidOperationException("Init called twice?");
-
-            var exists = File.Exists(_config.SaveFile);
-            _fileStream = File.Open(_config.SaveFile, FileMode.OpenOrCreate, FileAccess.ReadWrite);
-
-            if (exists)
+            if (File.Exists(_config.SaveFile))
             {
-                var buf = new byte[1024];
-                int c;
-                var sb = new StringBuilder();
-                while ((c = _fileStream.Read(buf, 0, buf.Length)) > 0)
-                    sb.Append(Encoding.UTF8.GetString(buf, 0, c));
-                _data = JsonConvert.DeserializeObject<DatabaseModel>(sb.ToString());
+                var loadData = await File.ReadAllTextAsync(_config.SaveFile);
+                _data = JsonConvert.DeserializeObject<DatabaseModel>(loadData);
             }
             else
             {
                 _data = new DatabaseModel();
-                await SaveAsync();
             }
         }
 
-        public Task SaveAsync()
+        private Task SaveAsync()
         {
-            var data = JsonConvert.SerializeObject(_data, Formatting.Indented, JsonSerializerSettings);
-            var bytes = Encoding.UTF8.GetBytes(data);
-
-            _fileStream.SetLength(0);
-            _fileStream.Position = 0;
-            return _fileStream.WriteAsync(bytes, 0, bytes.Length);
-        }
-
-        public void Dispose()
-        {
-            _fileStream?.Dispose();
+            return _saveRetryPolicy.Execute(
+                async () =>
+                {
+                    var data = JsonConvert.SerializeObject(_data, Formatting.Indented, JsonSerializerSettings);
+                    await File.WriteAllTextAsync(_config.SaveFile, data);
+                }
+            );
         }
     }
 }

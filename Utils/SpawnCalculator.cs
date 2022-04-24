@@ -33,7 +33,7 @@ namespace RagnaBot.Utils
             Timer timer,
             MvpInfo mvpInfo
         ) =>
-            GetNextReminder(timer, mvpInfo) <= DateTime.UtcNow;
+            GetNextReminder(timer, mvpInfo) <= DateTime.UtcNow && GetNextSpawn(timer, mvpInfo) > DateTime.UtcNow;
 
         public static bool IsReminderDue(
             Timer timer,
@@ -45,18 +45,18 @@ namespace RagnaBot.Utils
             Timer timer,
             MvpInfo mvpInfo
         ) =>
-            GetNextSpawn(timer, mvpInfo) < DateTime.UtcNow && GetNextSpawnWindowEnd(timer, mvpInfo) > DateTime.UtcNow;
+            GetNextSpawn(timer, mvpInfo) <= DateTime.UtcNow && GetNextSpawnWindowEnd(timer, mvpInfo) > DateTime.UtcNow;
 
         public static bool IsSpawned(
             Timer timer,
             MvpInfo mvpInfo
         ) =>
-            GetNextSpawnWindowEnd(timer, mvpInfo) < DateTime.UtcNow;
+            GetNextSpawnWindowEnd(timer, mvpInfo) <= DateTime.UtcNow;
 
         public static bool IsOldTimer(
             Timer timer,
             MvpInfo mvpInfo
         ) =>
-            GetNextSpawn(timer, mvpInfo) <= DateTime.UtcNow.AddHours(-12);
+            GetNextSpawnWindowEnd(timer, mvpInfo) <= DateTime.UtcNow.Add(-(mvpInfo.RespawnDuration + mvpInfo.RespawnVariance));
     }
 }

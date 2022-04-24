@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace RagnaBot.Data
 {
-    public partial class Repository : IDisposable
+    public partial class Repository
     {
         public Task AddMessageToCleanup(
             ulong id,

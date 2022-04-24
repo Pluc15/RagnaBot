@@ -1,9 +1,8 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace RagnaBot.Data
 {
-    public partial class Repository : IDisposable
+    public partial class Repository
     {
         public bool HasDashboardMessageId(
             int page
