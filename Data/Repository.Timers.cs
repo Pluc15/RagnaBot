@@ -9,51 +9,45 @@ namespace RagnaBot.Data
 {
     public partial class Repository
     {
-        public IEnumerable<Timer> GetTimersSpawningInAWhile()
+        public IEnumerable<(Timer Timer, MvpInfo MvpInfo)> GetTimersSpawningInAWhile()
         {
             return GetAllTimersWithMvpInfo()
                 .Where(o => SpawnCalculator.IsSpawningInAWhile(o.Timer, o.MvpInfo))
-                .Select(o => o.Timer)
                 .ToList();
         }
 
-        public IEnumerable<Timer> GetTimersSpawningSoon()
+        public IEnumerable<(Timer Timer, MvpInfo MvpInfo)> GetTimersSpawningSoon()
         {
             return GetAllTimersWithMvpInfo()
                 .Where(o => SpawnCalculator.IsSpawningSoon(o.Timer, o.MvpInfo))
-                .Select(o => o.Timer)
                 .ToList();
         }
 
-        public IEnumerable<Timer> GetTimersWithReminderDue()
+        public IEnumerable<(Timer Timer, MvpInfo MvpInfo)> GetTimersWithReminderDue()
         {
             return GetAllTimersWithMvpInfo()
                 .Where(o => SpawnCalculator.IsReminderDue(o.Timer, o.MvpInfo))
-                .Select(o => o.Timer)
                 .ToList();
         }
 
-        public IEnumerable<Timer> GetTimersInWindow()
+        public IEnumerable<(Timer Timer, MvpInfo MvpInfo)> GetTimersInWindow()
         {
             return GetAllTimersWithMvpInfo()
                 .Where(o => SpawnCalculator.IsInWindow(o.Timer, o.MvpInfo))
-                .Select(o => o.Timer)
                 .ToList();
         }
 
-        public IEnumerable<Timer> GetTimersSpawned()
+        public IEnumerable<(Timer Timer, MvpInfo MvpInfo)> GetTimersSpawned()
         {
             return GetAllTimersWithMvpInfo()
                 .Where(o => SpawnCalculator.IsSpawned(o.Timer, o.MvpInfo))
-                .Select(o => o.Timer)
                 .ToList();
         }
 
-        public IEnumerable<Timer> GetTimersOldTimers()
+        public IEnumerable<(Timer Timer, MvpInfo MvpInfo)> GetTimersOldTimers()
         {
             return GetAllTimersWithMvpInfo()
                 .Where(o => SpawnCalculator.IsOldTimer(o.Timer, o.MvpInfo))
-                .Select(o => o.Timer)
                 .ToList();
         }
 

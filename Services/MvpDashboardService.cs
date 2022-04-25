@@ -1,5 +1,4 @@
-﻿using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.Logging;
@@ -61,20 +60,9 @@ namespace RagnaBot.Services
             ulong messageId
         )
         {
-            var newDashboardContent = new StringBuilder();
-            newDashboardContent.AppendLine("__**MVPs Recently Spawned**__");
-            foreach (var timer in _repository.GetTimersSpawned())
-            {
-                var mvpInfo = _repository.GetMvpInfoById(timer.Id);
-                var nextSpawnWindowEnd = SpawnCalculator.GetNextSpawnWindowEnd(timer, mvpInfo);
-                newDashboardContent.AppendLine(
-                    $"`{mvpInfo.MvpName}` on map `{mvpInfo.Map}` spawn windows ended <t:{nextSpawnWindowEnd.ToEpoch()}:R> - <@{timer.ReportedByUserId}>"
-                );
-            }
-
+            var timersSpawned = _repository.GetTimersSpawned();
             var message = await channel.GetMessageAsync(messageId);
-            await new DiscordMessageBuilder()
-                .WithContent(newDashboardContent.ToString())
+            await Messages.Dashboard("MVPs Recently Spawned", timersSpawned)
                 .ModifyAsync(message);
         }
 
@@ -83,20 +71,9 @@ namespace RagnaBot.Services
             ulong messageId
         )
         {
-            var newDashboardContent = new StringBuilder();
-            newDashboardContent.AppendLine("__**MVPs In Window**__");
-            foreach (var timer in _repository.GetTimersInWindow())
-            {
-                var mvpInfo = _repository.GetMvpInfoById(timer.Id);
-                var nextSpawnWindowEnd = SpawnCalculator.GetNextSpawnWindowEnd(timer, mvpInfo);
-                newDashboardContent.AppendLine(
-                    $"`{mvpInfo.MvpName}` on map `{mvpInfo.Map}` is in window ending <t:{nextSpawnWindowEnd.ToEpoch()}:R> - <@{timer.ReportedByUserId}>"
-                );
-            }
-
+            var timersSpawned = _repository.GetTimersInWindow();
             var message = await channel.GetMessageAsync(messageId);
-            await new DiscordMessageBuilder()
-                .WithContent(newDashboardContent.ToString())
+            await Messages.Dashboard("MVPs In Window", timersSpawned)
                 .ModifyAsync(message);
         }
 
@@ -105,18 +82,9 @@ namespace RagnaBot.Services
             ulong messageId
         )
         {
-            var newDashboardContent = new StringBuilder();
-            newDashboardContent.AppendLine("__**MVPs Spawning Soon**__");
-            foreach (var timer in _repository.GetTimersSpawningSoon())
-            {
-                var mvpInfo = _repository.GetMvpInfoById(timer.Id);
-                var nextSpawn = SpawnCalculator.GetNextSpawn(timer, mvpInfo);
-                newDashboardContent.AppendLine($"`{mvpInfo.MvpName}` on map `{mvpInfo.Map}` will be in spawn window <t:{nextSpawn.ToEpoch()}:R> - <@{timer.ReportedByUserId}>");
-            }
-
+            var timersSpawned = _repository.GetTimersSpawningSoon();
             var message = await channel.GetMessageAsync(messageId);
-            await new DiscordMessageBuilder()
-                .WithContent(newDashboardContent.ToString())
+            await Messages.Dashboard("MVPs Spawning Soon", timersSpawned)
                 .ModifyAsync(message);
         }
 
@@ -125,18 +93,9 @@ namespace RagnaBot.Services
             ulong messageId
         )
         {
-            var newDashboardContent = new StringBuilder();
-            newDashboardContent.AppendLine("__**MVPs Spawning In A While**__");
-            foreach (var timer in _repository.GetTimersSpawningInAWhile())
-            {
-                var mvpInfo = _repository.GetMvpInfoById(timer.Id);
-                var nextSpawn = SpawnCalculator.GetNextSpawn(timer, mvpInfo);
-                newDashboardContent.AppendLine($"`{mvpInfo.MvpName}` on map `{mvpInfo.Map}` will be in spawn window <t:{nextSpawn.ToEpoch()}:R> - <@{timer.ReportedByUserId}>");
-            }
-
+            var timersSpawned = _repository.GetTimersSpawningInAWhile();
             var message = await channel.GetMessageAsync(messageId);
-            await new DiscordMessageBuilder()
-                .WithContent(newDashboardContent.ToString())
+            await Messages.Dashboard("MVPs Spawning In A While", timersSpawned)
                 .ModifyAsync(message);
         }
     }

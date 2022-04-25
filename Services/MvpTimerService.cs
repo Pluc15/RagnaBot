@@ -54,34 +54,32 @@ namespace RagnaBot.Services
         {
             foreach (var timer in _repository.GetTimersWithReminderDue())
             {
-                var mvpInfo = _repository.GetMvpInfoById(timer.Id);
                 var channel = await _discordClient.GetChannelAsync(_config.ChannelId);
-                var mentionRoles = new List<DiscordRole>
+                var mentions = new List<DiscordRole>
                 {
                     channel.Guild.GetRole(_config.TrackerRoleId)
                 };
-                if (mvpInfo.IsHighEnd)
+                if (timer.MvpInfo.IsHighEnd)
                 {
-                    mentionRoles.Add(channel.Guild.GetRole(_config.HighEndMvpTeamRoleId));
+                    mentions.Add(channel.Guild.GetRole(_config.HighEndMvpTeamRoleId));
                 }
 
                 var message = await Messages.MvpSpawningSoon(
-                        _config,
-                        timer,
-                        mvpInfo,
-                        mentionRoles
+                        timer.Timer,
+                        timer.MvpInfo,
+                        mentions
                     )
                     .SendAsync(channel);
 
                 _repository.AddMessageToCleanup(
                     message.Id,
-                    SpawnCalculator.GetNextSpawn(timer, mvpInfo) + mvpInfo.RespawnVariance + TimeSpan.FromMinutes(5),
-                    mvpInfo.Id
+                    SpawnCalculator.GetNextSpawn(timer.Timer, timer.MvpInfo) + timer.MvpInfo.RespawnVariance + TimeSpan.FromMinutes(5),
+                    timer.MvpInfo.Id
                 );
 
-                _repository.SetReminderSent(timer.Id);
+                _repository.SetReminderSent(timer.Timer.Id);
 
-                _logger.LogInformation($"Reminder sent for {timer.Id}");
+                _logger.LogInformation($"Reminder sent for {timer.Timer.Id}");
             }
         }
 
@@ -89,8 +87,8 @@ namespace RagnaBot.Services
         {
             foreach (var timer in _repository.GetTimersOldTimers())
             {
-                _repository.DeleteTimer(timer.Id);
-                _logger.LogInformation($"Old timer deleted for {timer.Id}");
+                _repository.DeleteTimer(timer.Timer.Id);
+                _logger.LogInformation($"Old timer deleted for {timer.Timer.Id}");
             }
         }
     }

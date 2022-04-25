@@ -13,28 +13,78 @@ namespace RagnaBot.Utils
         )
         {
             var nextSpawn = SpawnCalculator.GetNextSpawn(timer, mvpInfo);
+            var nextSpawnWindowEnd = SpawnCalculator.GetNextSpawnWindowEnd(timer, mvpInfo);
+            var nextReminder = SpawnCalculator.GetNextReminder(timer, mvpInfo);
             return new DiscordMessageBuilder()
-                .WithContent(
-                    $"**{mvpInfo.MvpName}** on map `{mvpInfo.Map}` will spawn <t:{nextSpawn.ToEpoch()}:R> with a variance of {mvpInfo.RespawnVariance.TotalMinutes} minutes.\n" +
-                    $"A reminder will occur {mvpInfo.RespawnReminder.TotalMinutes} minutes before spawn window."
+                .AddEmbed(
+                    new DiscordEmbedBuilder()
+                        .WithUrl(OriginsRoUrlBuilder.GetMobInfoUrl(mvpInfo.RagnarokId.ToString()))
+                        .WithThumbnail(OriginsRoUrlBuilder.GetMobImageUrl(mvpInfo.RagnarokId.ToString()))
+                        .WithTitle(mvpInfo.MvpName)
+                        .AddField("Map", mvpInfo.Map, true)
+                        .AddField("Spawn time", $"<t:{nextSpawn.ToEpoch()}:t> to <t:{nextSpawnWindowEnd.ToEpoch()}:t>\n<t:{nextSpawn.ToEpoch()}:R>", true)
+                        .AddField("Reminder", $"<t:{nextReminder.ToEpoch()}:t>", true)
                 );
         }
 
         public static DiscordMessageBuilder MvpSpawningSoon(
-            Config config,
             Timer timer,
             MvpInfo mvpInfo,
-            IEnumerable<DiscordRole> mentions
+            IEnumerable<DiscordRole> mentionRoles
         )
         {
             var nextSpawn = SpawnCalculator.GetNextSpawn(timer, mvpInfo);
-            return new DiscordMessageBuilder()
-                .WithContent(
-                    $"**{mvpInfo.MvpName}** on map `{mvpInfo.Map}` will spawn in <t:{nextSpawn.ToEpoch()}:R> with a variance of {mvpInfo.RespawnVariance.TotalMinutes} minutes.\n" +
-                    string.Join("\n", mentions.Select(m => m.Mention))
+            var nextSpawnWindowEnd = SpawnCalculator.GetNextSpawnWindowEnd(timer, mvpInfo);
+            var discordMessageBuilder = new DiscordMessageBuilder()
+                .AddEmbed(
+                    new DiscordEmbedBuilder()
+                        .WithUrl(OriginsRoUrlBuilder.GetMobInfoUrl(mvpInfo.RagnarokId.ToString()))
+                        .WithThumbnail(OriginsRoUrlBuilder.GetMobImageUrl(mvpInfo.RagnarokId.ToString()))
+                        .WithTitle(mvpInfo.MvpName)
+                        .AddField("Map", mvpInfo.Map, true)
+                        .AddField("Spawn time", $"<t:{nextSpawn.ToEpoch()}:t> to <t:{nextSpawnWindowEnd.ToEpoch()}:t>\n<t:{nextSpawn.ToEpoch()}:R>", true)
+                        .AddField(
+                            "Mentions",
+                            string.Join(
+                                "\n",
+                                mentionRoles
+                                    .Select(r => r.Mention)
+                                    .Union(
+                                        new[]
+                                        {
+                                            Formatter.FormatUserMention(timer.ReportedByUserId)
+                                        }
+                                    )
+                            ),
+                            true
+                        )
                 )
-                .WithAllowedMention(new RoleMention(config.TrackerRoleId))
-                .WithAllowedMention(new RoleMention(config.HighEndMvpTeamRoleId));
+                .WithAllowedMention(new UserMention(timer.ReportedByUserId));
+            foreach (var mention in mentionRoles)
+                discordMessageBuilder.WithAllowedMention(new RoleMention(mention));
+            return discordMessageBuilder;
+        }
+
+        public static DiscordMessageBuilder Dashboard(
+            string title,
+            IEnumerable<(Timer Timer, MvpInfo MvpInfo)> timersSpawned
+        )
+        {
+            var embedBuilder = new DiscordEmbedBuilder()
+                .WithTitle($"__**{title}**__");
+
+            foreach (var timer in timersSpawned)
+            {
+                var nextSpawn = SpawnCalculator.GetNextSpawn(timer.Timer, timer.MvpInfo);
+                var nextSpawnWindowEnd = SpawnCalculator.GetNextSpawnWindowEnd(timer.Timer, timer.MvpInfo);
+                embedBuilder
+                    .AddField("MVP", $"{timer.MvpInfo.MvpName}\n{timer.MvpInfo.Map}", true)
+                    .AddField("Spawn time", $"<t:{nextSpawn.ToEpoch()}:t> to <t:{nextSpawnWindowEnd.ToEpoch()}:t>\n<t:{nextSpawn.ToEpoch()}:R>", true)
+                    .AddField("Reported by", Formatter.FormatUserMention(timer.Timer.ReportedByUserId), true);
+            }
+
+            return new DiscordMessageBuilder()
+                .AddEmbed(embedBuilder);
         }
 
         public static string UnknownMvp()
