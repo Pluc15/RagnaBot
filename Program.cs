@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RagnaBot.Data;
 using RagnaBot.Modules;
+using RagnaBot.Origin;
 using RagnaBot.Services;
 
 namespace RagnaBot
@@ -22,12 +23,14 @@ namespace RagnaBot
             var repository = serviceProvider.GetService<Repository>()!;
             var discordClient = serviceProvider.GetService<DiscordClient>()!;
             var mvpModule = serviceProvider.GetService<MvpModule>()!;
+            var marketModule = serviceProvider.GetService<MarketModule>()!;
 
             await repository.Load();
             await discordClient.ConnectAsync();
 
             await Task.WhenAny(
                 mvpModule.Start(cts.Token),
+                marketModule.Start(cts.Token),
                 repository.StartSaveWatcher(cts.Token)
             );
         }
@@ -46,11 +49,20 @@ namespace RagnaBot
             // Data
             services.AddSingleton<Repository>();
 
-            // Services
+            // MVP Services
             services.AddSingleton<MvpTimerService>();
             services.AddSingleton<MessageCleanupService>();
             services.AddSingleton<MvpDashboardService>();
             services.AddSingleton<MvpModule>();
+
+            // Market Services
+            services.AddHttpClient<OriginClient>();
+            services.AddSingleton<OriginClient>();
+            services.AddSingleton<MarketWatcherService>();
+            services.AddSingleton<MarketCollectorService>();
+            services.AddSingleton<MarketModule>();
+
+            // Discord
             services.AddSingleton(
                 sp => new DiscordClient(
                     new DiscordConfiguration
@@ -64,7 +76,7 @@ namespace RagnaBot
             services.AddSingleton<ILogger>(sp => sp.GetService<DiscordClient>()!.Logger);
             var serviceProvider = services.BuildServiceProvider();
 
-            // Discord
+            // Configure Discord
             var discordClient = serviceProvider.GetService<DiscordClient>()!;
             var commands = discordClient.UseCommandsNext(
                 new CommandsNextConfiguration
@@ -74,6 +86,7 @@ namespace RagnaBot
                 }
             );
             commands.RegisterCommands<MvpModule>();
+            commands.RegisterCommands<MarketModule>();
 
             return serviceProvider;
         }
