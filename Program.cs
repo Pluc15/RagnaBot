@@ -26,7 +26,7 @@ namespace RagnaBot
             await repository.Load();
             await discordClient.ConnectAsync();
 
-            await Task.WhenAll(
+            await Task.WhenAny(
                 mvpModule.Start(cts.Token),
                 repository.StartSaveWatcher(cts.Token)
             );
