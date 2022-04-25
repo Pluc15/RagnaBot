@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using DSharpPlus.Entities;
+using RagnaBot.Models;
 using RagnaBot.Utils;
 
 namespace RagnaBot.Data
@@ -57,23 +57,23 @@ namespace RagnaBot.Data
                 .ToList();
         }
 
-        public Task DeleteTimer(
+        public void DeleteTimer(
             string id
         )
         {
             _data.Timers.RemoveAll(t => t.Id == id);
-            return SaveAsync();
+            _dirty = true;
         }
 
-        public Task SetReminderSent(
+        public void SetReminderSent(
             string id
         )
         {
             _data.Timers.Single(t => t.Id == id).ReminderSent = true;
-            return SaveAsync();
+            _dirty = true;
         }
 
-        public async Task<Timer> CreateTimer(
+        public Timer CreateTimer(
             MvpInfo mvpInfo,
             DateTime timeOfDeath,
             DiscordUser user
@@ -88,7 +88,7 @@ namespace RagnaBot.Data
                 ReportedByUserId = user.Id
             };
             _data.Timers.Add(timer);
-            await SaveAsync();
+            _dirty = true;
             return timer;
         }
 

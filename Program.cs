@@ -17,19 +17,19 @@ namespace RagnaBot
         private static async Task Main()
         {
             using var cts = new CancellationTokenSource();
+
             var serviceProvider = RegisterServices();
-            await serviceProvider.GetService<Repository>()!.Load();
-            serviceProvider.GetService<MessageCleanupService>()!.RegisterAutoCleanup();
-            await serviceProvider.GetService<DiscordClient>()!.ConnectAsync();
-            await serviceProvider.GetService<MvpDashboardService>()!.Init();
-            await serviceProvider.GetService<MvpDashboardService>()!.Update();
-            while (!cts.IsCancellationRequested)
-            {
-                await SendReminders(serviceProvider);
-                await DeleteOldTimers(serviceProvider);
-                await CleanupMessages(serviceProvider);
-                await Task.Delay(1000, cts.Token);
-            }
+            var repository = serviceProvider.GetService<Repository>()!;
+            var discordClient = serviceProvider.GetService<DiscordClient>()!;
+            var mvpModule = serviceProvider.GetService<MvpModule>()!;
+
+            await repository.Load();
+            await discordClient.ConnectAsync();
+
+            await Task.WhenAll(
+                mvpModule.Start(cts.Token),
+                repository.StartSaveWatcher(cts.Token)
+            );
         }
 
         private static IServiceProvider RegisterServices()
@@ -50,6 +50,7 @@ namespace RagnaBot
             services.AddSingleton<MvpTimerService>();
             services.AddSingleton<MessageCleanupService>();
             services.AddSingleton<MvpDashboardService>();
+            services.AddSingleton<MvpModule>();
             services.AddSingleton(
                 sp => new DiscordClient(
                     new DiscordConfiguration
@@ -75,48 +76,6 @@ namespace RagnaBot
             commands.RegisterCommands<MvpModule>();
 
             return serviceProvider;
-        }
-
-        private static async Task SendReminders(
-            IServiceProvider serviceProvider
-        )
-        {
-            try
-            {
-                await serviceProvider.GetService<MvpTimerService>()!.SendReminders();
-            }
-            catch (Exception ex)
-            {
-                serviceProvider.GetService<ILogger>()!.LogError(ex, "Unhandled error");
-            }
-        }
-
-        private static async Task DeleteOldTimers(
-            IServiceProvider serviceProvider
-        )
-        {
-            try
-            {
-                await serviceProvider.GetService<MvpTimerService>()!.DeleteOldTimers();
-            }
-            catch (Exception ex)
-            {
-                serviceProvider.GetService<ILogger>()!.LogError(ex, "Unhandled error");
-            }
-        }
-
-        private static async Task CleanupMessages(
-            IServiceProvider serviceProvider
-        )
-        {
-            try
-            {
-                await serviceProvider.GetService<MessageCleanupService>()!.Cleanup();
-            }
-            catch (Exception ex)
-            {
-                serviceProvider.GetService<ILogger>()!.LogError(ex, "Unhandled error");
-            }
         }
     }
 }

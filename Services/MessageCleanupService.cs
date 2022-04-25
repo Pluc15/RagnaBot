@@ -4,6 +4,7 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.Logging;
 using RagnaBot.Data;
+using RagnaBot.Models;
 
 namespace RagnaBot.Services
 {
@@ -27,46 +28,61 @@ namespace RagnaBot.Services
             _logger = logger;
         }
 
-        public Task QueueForCleanup(
-            DiscordMessage message,
-            DateTime deletionTime
-        )
+        public void Register()
         {
-            return _repository.AddMessageToCleanup(message.Id, deletionTime);
-        }
-
-        public async Task Cleanup()
-        {
-            foreach (var messageRef in _repository.GetMessageToCleanups())
-            {
-                try
-                {
-                    var channel = await _discordClient.GetChannelAsync(_config.ChannelId);
-                    var message = await channel.GetMessageAsync(messageRef.Id);
-                    await message.DeleteAsync();
-                    _logger.LogInformation($"Message deleted: '{message.Content}' by '{message.Author.Username}'");
-                }
-                catch (DSharpPlus.Exceptions.NotFoundException ex)
-                {
-                    _logger.LogWarning(ex, "Failed to cleanup a message");
-                }
-
-                await _repository.RemoveMessageToCleanup(messageRef);
-            }
-        }
-
-        public void RegisterAutoCleanup()
-        {
-            _discordClient.MessageCreated += async (
+            _discordClient.MessageCreated += (
                 _,
                 args
             ) =>
             {
                 if (args.Channel.Id == _config.ChannelId && _discordClient.CurrentUser.Id != args.Author.Id)
-                    await QueueForCleanup(args.Message, DateTime.UtcNow.AddSeconds(5));
+                    QueueForCleanup(args.Message, DateTime.UtcNow.AddSeconds(5));
+                return Task.CompletedTask;
             };
 
             _logger.LogInformation("AutoCleanup registered");
+        }
+
+        public void QueueForCleanup(
+            DiscordMessage message,
+            DateTime deletionTime,
+            string mvpId = null
+        )
+        {
+            _repository.AddMessageToCleanup(message.Id, deletionTime, mvpId);
+        }
+
+        public async Task CleanupForMvpId(
+            string mvpId
+        )
+        {
+            foreach (var messageRef in _repository.GetMessagesToCleanupForMvpId(mvpId))
+                await DeleteMessage(messageRef);
+        }
+
+        public async Task CleanupExpired()
+        {
+            foreach (var messageRef in _repository.GetMessagesToCleanupExpired())
+                await DeleteMessage(messageRef);
+        }
+
+        private async Task DeleteMessage(
+            MessageReference messageRef
+        )
+        {
+            try
+            {
+                var channel = await _discordClient.GetChannelAsync(_config.ChannelId);
+                var message = await channel.GetMessageAsync(messageRef.Id);
+                await message.DeleteAsync();
+                _logger.LogInformation($"Message deleted: '{message.Content}' by '{message.Author.Username}'");
+            }
+            catch (DSharpPlus.Exceptions.NotFoundException ex)
+            {
+                _logger.LogWarning(ex, "Failed to cleanup a message");
+            }
+
+            _repository.RemoveMessageToCleanup(messageRef);
         }
     }
 }

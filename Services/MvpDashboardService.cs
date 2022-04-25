@@ -33,13 +33,13 @@ namespace RagnaBot.Services
             var channel = await _discordClient.GetChannelAsync(_config.ChannelId);
 
             if (!_repository.HasDashboardMessageId(0))
-                await _repository.UpdateDashboardMessageId(0, (await channel.SendMessageAsync("Dashboard placeholder 1")).Id);
+                _repository.UpdateDashboardMessageId(0, (await channel.SendMessageAsync("Dashboard placeholder 1")).Id);
             if (!_repository.HasDashboardMessageId(1))
-                await _repository.UpdateDashboardMessageId(1, (await channel.SendMessageAsync("Dashboard placeholder 2")).Id);
+                _repository.UpdateDashboardMessageId(1, (await channel.SendMessageAsync("Dashboard placeholder 2")).Id);
             if (!_repository.HasDashboardMessageId(2))
-                await _repository.UpdateDashboardMessageId(2, (await channel.SendMessageAsync("Dashboard placeholder 3")).Id);
+                _repository.UpdateDashboardMessageId(2, (await channel.SendMessageAsync("Dashboard placeholder 3")).Id);
             if (!_repository.HasDashboardMessageId(3))
-                await _repository.UpdateDashboardMessageId(3, (await channel.SendMessageAsync("Dashboard placeholder 4")).Id);
+                _repository.UpdateDashboardMessageId(3, (await channel.SendMessageAsync("Dashboard placeholder 4")).Id);
 
             _logger.LogInformation("Dashboard initiated");
         }
@@ -67,7 +67,9 @@ namespace RagnaBot.Services
             {
                 var mvpInfo = _repository.GetMvpInfoById(timer.Id);
                 var nextSpawnWindowEnd = SpawnCalculator.GetNextSpawnWindowEnd(timer, mvpInfo);
-                newDashboardContent.AppendLine($"`{mvpInfo.MvpName}` on map `{mvpInfo.Map}` spawn windows ended <t:{nextSpawnWindowEnd.ToEpoch()}:R>");
+                newDashboardContent.AppendLine(
+                    $"`{mvpInfo.MvpName}` on map `{mvpInfo.Map}` spawn windows ended <t:{nextSpawnWindowEnd.ToEpoch()}:R> - <@{timer.ReportedByUserId}>"
+                );
             }
 
             var message = await channel.GetMessageAsync(messageId);
@@ -87,7 +89,9 @@ namespace RagnaBot.Services
             {
                 var mvpInfo = _repository.GetMvpInfoById(timer.Id);
                 var nextSpawnWindowEnd = SpawnCalculator.GetNextSpawnWindowEnd(timer, mvpInfo);
-                newDashboardContent.AppendLine($"`{mvpInfo.MvpName}` on map `{mvpInfo.Map}` is in window ending <t:{nextSpawnWindowEnd.ToEpoch()}:R>");
+                newDashboardContent.AppendLine(
+                    $"`{mvpInfo.MvpName}` on map `{mvpInfo.Map}` is in window ending <t:{nextSpawnWindowEnd.ToEpoch()}:R> - <@{timer.ReportedByUserId}>"
+                );
             }
 
             var message = await channel.GetMessageAsync(messageId);
@@ -107,7 +111,7 @@ namespace RagnaBot.Services
             {
                 var mvpInfo = _repository.GetMvpInfoById(timer.Id);
                 var nextSpawn = SpawnCalculator.GetNextSpawn(timer, mvpInfo);
-                newDashboardContent.AppendLine($"`{mvpInfo.MvpName}` on map `{mvpInfo.Map}` will be in spawn window <t:{nextSpawn.ToEpoch()}:R>");
+                newDashboardContent.AppendLine($"`{mvpInfo.MvpName}` on map `{mvpInfo.Map}` will be in spawn window <t:{nextSpawn.ToEpoch()}:R> - <@{timer.ReportedByUserId}>");
             }
 
             var message = await channel.GetMessageAsync(messageId);
@@ -127,7 +131,7 @@ namespace RagnaBot.Services
             {
                 var mvpInfo = _repository.GetMvpInfoById(timer.Id);
                 var nextSpawn = SpawnCalculator.GetNextSpawn(timer, mvpInfo);
-                newDashboardContent.AppendLine($"`{mvpInfo.MvpName}` on map `{mvpInfo.Map}` will be in spawn window <t:{nextSpawn.ToEpoch()}:R>");
+                newDashboardContent.AppendLine($"`{mvpInfo.MvpName}` on map `{mvpInfo.Map}` will be in spawn window <t:{nextSpawn.ToEpoch()}:R> - <@{timer.ReportedByUserId}>");
             }
 
             var message = await channel.GetMessageAsync(messageId);

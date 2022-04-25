@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace RagnaBot.Data
+namespace RagnaBot.Models
 {
     public class MvpInfo
     {

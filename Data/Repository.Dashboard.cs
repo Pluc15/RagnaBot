@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace RagnaBot.Data
+﻿namespace RagnaBot.Data
 {
     public partial class Repository
     {
@@ -18,13 +16,13 @@ namespace RagnaBot.Data
             return _data.DashboardMessageIds[page];
         }
 
-        public Task UpdateDashboardMessageId(
+        public void UpdateDashboardMessageId(
             int page,
             ulong messageId
         )
         {
             _data.DashboardMessageIds[page] = messageId;
-            return SaveAsync();
+            _dirty = true;
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
@@ -30,6 +30,22 @@ namespace RagnaBot.Modules
             _logger = logger;
         }
 
+        public async Task Start(
+            CancellationToken ct
+        )
+        {
+            _messageCleanupService.Register();
+            await _mvpDashboardService.Init();
+            await _mvpDashboardService.Update();
+            while (!ct.IsCancellationRequested)
+            {
+                await SendReminders();
+                DeleteOldTimers();
+                await CleanupMessages();
+                await Task.Delay(1000, ct);
+            }
+        }
+
         [Command("mvp")]
         public async Task RegisterMvpDeath(
             CommandContext ctx,
@@ -40,23 +56,24 @@ namespace RagnaBot.Modules
             try
             {
                 mvpKey = mvpKey.Trim().ToLower().Replace(" ", "");
-                var dateTimeOfDeath = ParseTimeOfDeath(timeOfDeath);
-                var (timer, mvpInfo) = await _mvpTimerService.RegisterTimeOfDeath(mvpKey, dateTimeOfDeath, ctx.User);
+                var dateTimeOfDeath = TimeOfDeathParser.Parse(timeOfDeath);
+                var (timer, mvpInfo) = _mvpTimerService.RegisterTimeOfDeath(mvpKey, dateTimeOfDeath, ctx.User);
+                await _messageCleanupService.CleanupForMvpId(mvpInfo.Id);
                 var message = await Messages.TimerRegistered(timer, mvpInfo).SendAsync(ctx.Channel);
-                await _messageCleanupService.QueueForCleanup(message, DateTime.UtcNow.AddSeconds(30));
+                _messageCleanupService.QueueForCleanup(message, DateTime.UtcNow.AddSeconds(30), mvpInfo.Id);
                 await _mvpDashboardService.Update();
             }
             catch (UnknownMvpException ex)
             {
                 _logger.LogWarning(ex, ex.Message);
                 var error = await ctx.Channel.SendMessageAsync(ex.Message);
-                await _messageCleanupService.QueueForCleanup(error, DateTime.UtcNow.AddSeconds(30));
+                _messageCleanupService.QueueForCleanup(error, DateTime.UtcNow.AddSeconds(30));
             }
             catch (InvalidCommandArgumentsException ex)
             {
                 _logger.LogWarning(ex, ex.Message);
                 var error = await ctx.Channel.SendMessageAsync(ex.Message);
-                await _messageCleanupService.QueueForCleanup(error, DateTime.UtcNow.AddSeconds(30));
+                _messageCleanupService.QueueForCleanup(error, DateTime.UtcNow.AddSeconds(30));
             }
             catch (Exception ex)
             {
@@ -64,35 +81,40 @@ namespace RagnaBot.Modules
             }
         }
 
-        private static DateTime ParseTimeOfDeath(
-            string timeOfDeath
-        )
+        private async Task SendReminders()
         {
-            if (string.IsNullOrEmpty(timeOfDeath))
-                return DateTime.UtcNow;
-
-            var tombFormat = Regex.Match(timeOfDeath, "^([0-9]|[0-1][0-9]|2[0-3])[:h]?([0-5][0-9])$");
-            if (tombFormat.Success)
+            try
             {
-                var hours = Convert.ToInt32(tombFormat.Groups[1].Value);
-                var minutes = Convert.ToInt32(tombFormat.Groups[2].Value);
-
-                var timeSpanOfDeath = TimeSpan.FromMinutes(hours * 60 + minutes);
-
-                return DateTime.UtcNow.TimeOfDay >= timeSpanOfDeath
-                    ? DateTime.UtcNow.Date.Add(timeSpanOfDeath)
-                    : DateTime.UtcNow.Date.AddDays(-1).Add(timeSpanOfDeath);
+                await _mvpTimerService.SendReminders();
             }
-
-            var agoFormat = Regex.Match(timeOfDeath, "^([1-9][0-9]*)m$");
-            if (agoFormat.Success)
+            catch (Exception ex)
             {
-                var minutesAgo = Convert.ToInt32(agoFormat.Groups[1].Value);
-
-                return DateTime.UtcNow.AddMinutes(-minutesAgo);
+                _logger.LogError(ex, "Unhandled error");
             }
+        }
 
-            throw new InvalidCommandArgumentsException(Messages.InvalidTimeOfDeathFormat());
+        private void DeleteOldTimers()
+        {
+            try
+            {
+                _mvpTimerService.DeleteOldTimers();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unhandled error");
+            }
+        }
+
+        private async Task CleanupMessages()
+        {
+            try
+            {
+                await _messageCleanupService.CleanupExpired();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unhandled error");
+            }
         }
     }
 }

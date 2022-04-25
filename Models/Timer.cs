@@ -1,6 +1,6 @@
 using System;
 
-namespace RagnaBot.Data
+namespace RagnaBot.Models
 {
     public class Timer
     {

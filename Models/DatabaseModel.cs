@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using RagnaBot.Data;
 
 namespace RagnaBot.Models
 {

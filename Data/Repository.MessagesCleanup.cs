@@ -1,40 +1,51 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using RagnaBot.Models;
 
 namespace RagnaBot.Data
 {
     public partial class Repository
     {
-        public Task AddMessageToCleanup(
+        public void AddMessageToCleanup(
             ulong id,
-            DateTime deletionTime
+            DateTime deletionTime,
+            string mvpId
         )
         {
             _data.MessagesToCleanup.Add(
                 new MessageReference
                 {
                     Id = id,
-                    DeletionTime = deletionTime
+                    DeletionTime = deletionTime,
+                    MvpId = mvpId
                 }
             );
-            return SaveAsync();
+            _dirty = true;
         }
 
-        public IEnumerable<MessageReference> GetMessageToCleanups()
+        public IEnumerable<MessageReference> GetMessagesToCleanupExpired()
         {
             return _data.MessagesToCleanup
                 .Where(m => m.DeletionTime < DateTime.UtcNow)
                 .ToList();
         }
 
-        public Task RemoveMessageToCleanup(
+        public IEnumerable<MessageReference> GetMessagesToCleanupForMvpId(
+            string mvpId
+        )
+        {
+            return _data.MessagesToCleanup
+                .Where(m => m.MvpId == mvpId)
+                .ToList();
+        }
+
+        public void RemoveMessageToCleanup(
             MessageReference messageReference
         )
         {
             _data.MessagesToCleanup.Remove(messageReference);
-            return SaveAsync();
+            _dirty = true;
         }
     }
 }

@@ -6,6 +6,7 @@ using DSharpPlus.Entities;
 using Microsoft.Extensions.Logging;
 using RagnaBot.Data;
 using RagnaBot.Exceptions;
+using RagnaBot.Models;
 using RagnaBot.Utils;
 
 namespace RagnaBot.Services
@@ -30,7 +31,7 @@ namespace RagnaBot.Services
             _logger = logger;
         }
 
-        public async Task<(Timer Timer, MvpInfo MvpInfo)> RegisterTimeOfDeath(
+        public (Timer Timer, MvpInfo MvpInfo) RegisterTimeOfDeath(
             string mvpKey,
             DateTime timeOfDeath,
             DiscordUser user
@@ -42,7 +43,7 @@ namespace RagnaBot.Services
 
             // TODO Check if it already exist - ask for confirmation
 
-            var timer = await _repository.CreateTimer(mvpInfo, timeOfDeath, user);
+            var timer = _repository.CreateTimer(mvpInfo, timeOfDeath, user);
 
             _logger.LogInformation($"Timer updated for '{mvpInfo.Id}' to '{timer.TimeOfDeath}' by '{user.Username}'");
 
@@ -72,22 +73,23 @@ namespace RagnaBot.Services
                     )
                     .SendAsync(channel);
 
-                await _repository.AddMessageToCleanup(
+                _repository.AddMessageToCleanup(
                     message.Id,
-                    SpawnCalculator.GetNextSpawn(timer, mvpInfo) + mvpInfo.RespawnVariance + TimeSpan.FromMinutes(5)
+                    SpawnCalculator.GetNextSpawn(timer, mvpInfo) + mvpInfo.RespawnVariance + TimeSpan.FromMinutes(5),
+                    mvpInfo.Id
                 );
 
-                await _repository.SetReminderSent(timer.Id);
+                _repository.SetReminderSent(timer.Id);
 
                 _logger.LogInformation($"Reminder sent for {timer.Id}");
             }
         }
 
-        public async Task DeleteOldTimers()
+        public void DeleteOldTimers()
         {
             foreach (var timer in _repository.GetTimersOldTimers())
             {
-                await _repository.DeleteTimer(timer.Id);
+                _repository.DeleteTimer(timer.Id);
                 _logger.LogInformation($"Old timer deleted for {timer.Id}");
             }
         }

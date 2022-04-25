@@ -1,5 +1,5 @@
 ﻿using System;
-using RagnaBot.Data;
+using RagnaBot.Models;
 
 namespace RagnaBot.Utils
 {
