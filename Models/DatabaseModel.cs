@@ -9,5 +9,7 @@ namespace RagnaBot.Models
         public Dictionary<int, ulong> DashboardMessageIds { get; set; } = new();
 
         public List<MessageReference> MessagesToCleanup { get; set; } = new();
+
+        public List<MarketWatcher> MarketWatchers { get; set; } = new();
     }
 }

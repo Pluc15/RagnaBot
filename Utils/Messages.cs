@@ -2,6 +2,7 @@
 using System.Linq;
 using DSharpPlus.Entities;
 using RagnaBot.Models;
+using RagnaBot.Origin;
 
 namespace RagnaBot.Utils
 {
@@ -43,21 +44,19 @@ namespace RagnaBot.Utils
                         .WithTitle(mvpInfo.MvpName)
                         .AddField("Map", mvpInfo.Map, true)
                         .AddField("Spawn time", $"<t:{nextSpawn.ToEpoch()}:t> to <t:{nextSpawnWindowEnd.ToEpoch()}:t>\n<t:{nextSpawn.ToEpoch()}:R>", true)
-                        .AddField(
-                            "Mentions",
-                            string.Join(
-                                "\n",
-                                mentionRoles
-                                    .Select(r => r.Mention)
-                                    .Union(
-                                        new[]
-                                        {
-                                            Formatter.FormatUserMention(timer.ReportedByUserId)
-                                        }
-                                    )
-                            ),
-                            true
-                        )
+                )
+                .WithContent(
+                    string.Join(
+                        ", ",
+                        mentionRoles
+                            .Select(r => r.Mention)
+                            .Union(
+                                new[]
+                                {
+                                    Formatter.FormatUserMention(timer.ReportedByUserId)
+                                }
+                            )
+                    )
                 )
                 .WithAllowedMention(new UserMention(timer.ReportedByUserId));
             foreach (var mention in mentionRoles)
@@ -87,14 +86,65 @@ namespace RagnaBot.Utils
                 .AddEmbed(embedBuilder);
         }
 
-        public static string UnknownMvp()
+        public static DiscordMessageBuilder MarketWatcherNotFound(
+            int itemId
+        )
         {
-            return "Unknown MvP";
+            return new DiscordMessageBuilder()
+                .WithContent($":warning: Market watcher for item id '{itemId}' not found");
         }
 
-        public static string InvalidTimeOfDeathFormat()
+        public static DiscordMessageBuilder MarketWatcherTriggered(
+            MarketWatcher watcher,
+            Item item,
+            Shop shop
+        )
         {
-            return "The time of death needs to be in 'HH:MM', 'HHMM' or 'MMm' (ago) format.";
+            return new DiscordMessageBuilder()
+                .AddEmbed(
+                    new DiscordEmbedBuilder()
+                        .WithTitle(ItemDb.Data.GetValueOrDefault(item.ItemId) ?? "Unknown Item")
+                        .WithThumbnail(OriginsRoUrlBuilder.GetItemImageUrl(item.ItemId))
+                        .WithUrl(OriginsRoUrlBuilder.GetItemInfoUrl(item.ItemId))
+                        .WithDescription(":bell: Market watcher triggered\nWatcher snoozed for 1h :zzz:")
+                        .AddField("Item Id", item.ItemId.ToString(), true)
+                        .AddField("Item Price", item.Price.ToString(), true)
+                        .AddField("Shop", $"`@navshop {shop.Owner}`", true)
+                )
+                .WithContent(Formatter.FormatUserMention(watcher.UserId))
+                .WithAllowedMention(new UserMention(watcher.UserId));
+        }
+
+        public static DiscordMessageBuilder MarketWatcherCreated(
+            int itemId,
+            int maximumPrice
+        )
+        {
+            return new DiscordMessageBuilder()
+                .AddEmbed(
+                    new DiscordEmbedBuilder()
+                        .WithTitle(ItemDb.Data.GetValueOrDefault(itemId) ?? "Unknown Item")
+                        .WithThumbnail(OriginsRoUrlBuilder.GetItemImageUrl(itemId))
+                        .WithUrl(OriginsRoUrlBuilder.GetItemInfoUrl(itemId))
+                        .WithDescription(":white_check_mark: Market watcher created")
+                        .AddField("Item Id", itemId.ToString(), true)
+                        .AddField("Maximum Price", maximumPrice.ToString(), true)
+                );
+        }
+
+        public static DiscordMessageBuilder MarketWatcherDeleted(
+            int itemId
+        )
+        {
+            return new DiscordMessageBuilder()
+                .AddEmbed(
+                    new DiscordEmbedBuilder()
+                        .WithTitle(ItemDb.Data.GetValueOrDefault(itemId) ?? "Unknown Item")
+                        .WithThumbnail(OriginsRoUrlBuilder.GetItemImageUrl(itemId))
+                        .WithUrl(OriginsRoUrlBuilder.GetItemInfoUrl(itemId))
+                        .WithDescription(":x: Market watcher deleted")
+                        .AddField("Item Id", itemId.ToString(), true)
+                );
         }
     }
 }

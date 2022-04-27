@@ -34,7 +34,7 @@ namespace RagnaBot.Utils
                 return DateTime.UtcNow.AddMinutes(-minutesAgo);
             }
 
-            throw new InvalidCommandArgumentsException(Messages.InvalidTimeOfDeathFormat());
+            throw new InvalidTimeOfDeathFormatException();
         }
     }
 }

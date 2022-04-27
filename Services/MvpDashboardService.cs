@@ -29,7 +29,7 @@ namespace RagnaBot.Services
 
         public async Task Init()
         {
-            var channel = await _discordClient.GetChannelAsync(_config.ChannelId);
+            var channel = await _discordClient.GetChannelAsync(_config.MvpTrackerChannelId);
 
             if (!_repository.HasDashboardMessageId(0))
                 _repository.UpdateDashboardMessageId(0, (await channel.SendMessageAsync("Dashboard placeholder 1")).Id);
@@ -45,7 +45,7 @@ namespace RagnaBot.Services
 
         public async Task Update()
         {
-            var channel = await _discordClient.GetChannelAsync(_config.ChannelId);
+            var channel = await _discordClient.GetChannelAsync(_config.MvpTrackerChannelId);
 
             await UpdateDashboardSpawned(channel, _repository.GetDashboardMessageId(0));
             await UpdateDashboardInWindow(channel, _repository.GetDashboardMessageId(1));

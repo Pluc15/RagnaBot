@@ -15,5 +15,19 @@
         {
             return $"https://cp.originsro.org/monster/view/?id={mobId}";
         }
+        
+        public static string GetItemImageUrl(
+            int itemId
+        )
+        {
+            return $"https://cp.originsro.org/data/images/items/collection/{itemId}.png";
+        }
+        
+        public static string GetItemInfoUrl(
+            int itemId
+        )
+        {
+            return $"https://cp.originsro.org/item/view/?id={itemId}";
+        }
     }
 }

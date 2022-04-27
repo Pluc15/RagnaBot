@@ -54,10 +54,10 @@ namespace RagnaBot.Services
         {
             foreach (var timer in _repository.GetTimersWithReminderDue())
             {
-                var channel = await _discordClient.GetChannelAsync(_config.ChannelId);
+                var channel = await _discordClient.GetChannelAsync(_config.MvpTrackerChannelId);
                 var mentions = new List<DiscordRole>
                 {
-                    channel.Guild.GetRole(_config.TrackerRoleId)
+                    channel.Guild.GetRole(_config.MvpTrackerRoleId)
                 };
                 if (timer.MvpInfo.IsHighEnd)
                 {

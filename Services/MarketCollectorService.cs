@@ -22,11 +22,10 @@ namespace RagnaBot.Services
             _logger = logger;
         }
 
-        public Task Collect()
+        public async Task Collect()
         {
-            // await _originClient.GetMarketListing();
-            _logger.LogInformation("TODO Collect");
-            return Task.CompletedTask;
+            var marketListing = await _originClient.GetMarketListing();
+            _repository.UpdateMarketListing(marketListing);
         }
     }
 }

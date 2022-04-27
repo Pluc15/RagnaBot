@@ -35,7 +35,7 @@ namespace RagnaBot.Services
                 args
             ) =>
             {
-                if (args.Channel.Id == _config.ChannelId && _discordClient.CurrentUser.Id != args.Author.Id)
+                if (args.Channel.Id == _config.MvpTrackerChannelId && _discordClient.CurrentUser.Id != args.Author.Id)
                     QueueForCleanup(args.Message, DateTime.UtcNow.AddSeconds(5));
                 return Task.CompletedTask;
             };
@@ -72,7 +72,7 @@ namespace RagnaBot.Services
         {
             try
             {
-                var channel = await _discordClient.GetChannelAsync(_config.ChannelId);
+                var channel = await _discordClient.GetChannelAsync(_config.MvpTrackerChannelId);
                 var message = await channel.GetMessageAsync(messageRef.Id);
                 await message.DeleteAsync();
                 _logger.LogInformation($"Message deleted: '{message.Content}' by '{message.Author.Username}'");

@@ -12,18 +12,21 @@ namespace RagnaBot.Modules
 {
     public class MvpModule : BaseCommandModule
     {
+        private readonly Config _config;
         private readonly MvpTimerService _mvpTimerService;
         private readonly MvpDashboardService _mvpDashboardService;
         private readonly MessageCleanupService _messageCleanupService;
         private readonly ILogger _logger;
 
         public MvpModule(
+            Config config,
             MvpTimerService mvpTimerService,
             MvpDashboardService mvpDashboardService,
             MessageCleanupService messageCleanupService,
             ILogger logger
         )
         {
+            _config = config;
             _mvpTimerService = mvpTimerService;
             _mvpDashboardService = mvpDashboardService;
             _messageCleanupService = messageCleanupService;
@@ -53,6 +56,9 @@ namespace RagnaBot.Modules
             string timeOfDeath = null
         )
         {
+            if (ctx.Channel.Id != _config.MvpTrackerChannelId)
+                return;
+
             try
             {
                 mvpKey = mvpKey.Trim().ToLower().Replace(" ", "");
@@ -69,7 +75,7 @@ namespace RagnaBot.Modules
                 var error = await ctx.Channel.SendMessageAsync(ex.Message);
                 _messageCleanupService.QueueForCleanup(error, DateTime.UtcNow.AddSeconds(30));
             }
-            catch (InvalidCommandArgumentsException ex)
+            catch (InvalidTimeOfDeathFormatException ex)
             {
                 _logger.LogWarning(ex, ex.Message);
                 var error = await ctx.Channel.SendMessageAsync(ex.Message);
