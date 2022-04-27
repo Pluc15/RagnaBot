@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using DSharpPlus.Entities;
 using RagnaBot.Models;
 using RagnaBot.Origin;
@@ -144,6 +145,21 @@ namespace RagnaBot.Utils
                         .WithUrl(OriginsRoUrlBuilder.GetItemInfoUrl(itemId))
                         .WithDescription(":x: Market watcher deleted")
                         .AddField("Item Id", itemId.ToString(), true)
+                );
+        }
+
+        public static DiscordMessageBuilder MarketWatcherList(
+            List<MarketWatcher> watchers
+        )
+        {
+            var sb = new StringBuilder();
+            foreach (var watcher in watchers)
+                sb.AppendLine($"{ItemDb.Data[watcher.ItemId]} - {watcher.MaximumPrice}");
+            return new DiscordMessageBuilder()
+                .AddEmbed(
+                    new DiscordEmbedBuilder()
+                        .WithTitle("Watchlist")
+                        .WithDescription(sb.ToString())
                 );
         }
     }

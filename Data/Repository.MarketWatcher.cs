@@ -61,5 +61,14 @@ namespace RagnaBot.Data
             watcher.SnoozedUntil = DateTime.UtcNow.Add(snoozeDuration);
             _dirty = true;
         }
+
+        public List<MarketWatcher> GetUserMarketWatchers(
+            ulong userId
+        )
+        {
+            return _data.MarketWatchers
+                .Where(w => w.UserId == userId)
+                .ToList();
+        }
     }
 }

@@ -101,5 +101,25 @@ namespace RagnaBot.Modules
                 _logger.LogError(ex, ex.Message);
             }
         }
+
+        [Command("watchlist")]
+        public async Task Watchlist(
+            CommandContext ctx
+        )
+        {
+            if (ctx.Channel.Id != _config.MarketTrackerChannelId)
+                return;
+
+            try
+            {
+                var watchers = _marketWatcherService.GetWatcherForUser(ctx.User);
+                await ctx.RespondAsync(Messages.MarketWatcherList(watchers));
+                _logger.LogInformation($"Watcher list requested by user '{ctx.User.Username}'");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+            }
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus;
@@ -6,6 +7,7 @@ using DSharpPlus.Entities;
 using Microsoft.Extensions.Logging;
 using RagnaBot.Data;
 using RagnaBot.Exceptions;
+using RagnaBot.Models;
 using RagnaBot.Utils;
 
 namespace RagnaBot.Services
@@ -50,6 +52,12 @@ namespace RagnaBot.Services
             }
         }
 
+        public List<MarketWatcher> GetWatcherForUser(
+            DiscordUser user
+        )
+        {
+            return _repository.GetUserMarketWatchers(user.Id);
+        }
 
         public async Task HandleMarketWatchers()
         {
