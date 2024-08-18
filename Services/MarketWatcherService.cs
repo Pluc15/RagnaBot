@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -80,9 +80,10 @@ namespace RagnaBot.Services
 
             foreach (var (watcher, item, shop) in triggeredMarketWatchers)
             {
-                await Messages.MarketWatcherTriggered(watcher, item, shop)
+                var snoozeDuration = TimeSpan.FromHours(12);
+                await Messages.MarketWatcherTriggered(watcher, item, shop, snoozeDuration)
                     .SendAsync(channel);
-                _repository.SnoozeWatcher(watcher.UserId, watcher.ItemId, TimeSpan.FromHours(1));
+                _repository.SnoozeWatcher(watcher.UserId, watcher.ItemId, snoozeDuration);
             }
         }
     }

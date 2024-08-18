@@ -1,5 +1,7 @@
-﻿.idea
+.idea
 bin
 obj
 deploy
 appsettings.json
+db.json
+market.json

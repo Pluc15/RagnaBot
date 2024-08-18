@@ -1,4 +1,4 @@
-﻿namespace RagnaBot.Data
+namespace RagnaBot.Data
 {
     public partial class Repository
     {

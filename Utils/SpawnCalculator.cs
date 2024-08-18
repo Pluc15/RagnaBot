@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using RagnaBot.Models;
 
 namespace RagnaBot.Utils

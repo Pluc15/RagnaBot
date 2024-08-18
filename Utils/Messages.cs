@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using DSharpPlus.Entities;
@@ -98,7 +99,8 @@ namespace RagnaBot.Utils
         public static DiscordMessageBuilder MarketWatcherTriggered(
             MarketWatcher watcher,
             Item item,
-            Shop shop
+            Shop shop,
+            TimeSpan snoozeDuration
         )
         {
             return new DiscordMessageBuilder()
@@ -107,7 +109,7 @@ namespace RagnaBot.Utils
                         .WithTitle(ItemDb.Data.GetValueOrDefault(item.ItemId) ?? "Unknown Item")
                         .WithThumbnail(OriginsRoUrlBuilder.GetItemImageUrl(item.ItemId))
                         .WithUrl(OriginsRoUrlBuilder.GetItemInfoUrl(item.ItemId))
-                        .WithDescription(":bell: Market watcher triggered\nWatcher snoozed for 1h :zzz:")
+                        .WithDescription($":bell: Market watcher triggered\nWatcher snoozed for ${snoozeDuration.TotalHours}h :zzz:")
                         .AddField("Item Id", item.ItemId.ToString(), true)
                         .AddField("Item Price", item.Price.ToString(), true)
                         .AddField("Shop", $"`@navshop {shop.Owner}`", true)

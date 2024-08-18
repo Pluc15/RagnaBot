@@ -1,4 +1,4 @@
-﻿namespace RagnaBot.Utils
+namespace RagnaBot.Utils
 {
     public static class OriginsRoUrlBuilder
     {
