@@ -913,6 +913,20 @@ public class MvpInfoDatabase()
             RespawnVariance = TimeSpan.FromMinutes(20),
             RespawnReminder = TimeSpan.FromMinutes(5),
             RagnarokId = 1704
+        },
+        new MvpInfo
+        {
+            Id = "yuno_fild05",
+            MvpKeys =
+            [
+                "archangeling",
+            ],
+            MvpName = "Archangeling",
+            Map = "yuno_fild05",
+            RespawnDuration = TimeSpan.FromMinutes(60),
+            RespawnVariance = TimeSpan.FromMinutes(3),
+            RespawnReminder = TimeSpan.FromMinutes(5),
+            RagnarokId = 1388,
         }
     ];
 }
