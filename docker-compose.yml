@@ -1,0 +1,14 @@
+services:
+  ragnabot:
+    restart: unless-stopped
+    build: ./src
+    volumes:
+      - ./db:/app/db
+    develop:
+      watch:
+        - action: rebuild
+          path: ./src
+          ignore:
+            - bin/
+            - obj/
+            - db/
