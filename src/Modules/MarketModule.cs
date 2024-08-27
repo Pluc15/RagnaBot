@@ -29,8 +29,8 @@ public class MarketModule(
             await Task.Delay(TimeSpan.FromMinutes(11), ct);
             try
             {
-                await evaluateMarketWatchersAction.Run();
                 await updateMarketAction.Run();
+                await evaluateMarketWatchersAction.Run();
             }
             catch (Exception ex)
             {

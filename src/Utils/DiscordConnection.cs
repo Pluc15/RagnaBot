@@ -43,7 +43,6 @@ public class DiscordConnection(
 
     private async Task DiscordReady()
     {
-        logger.LogInformation($"DiscordSocketClient.Ready");
         foreach (var guild in discordClient.Guilds)
             await RegisterCommandsToGuild(guild!);
     }
@@ -57,15 +56,7 @@ public class DiscordConnection(
 
     private async Task DiscordInteractionCreated(SocketInteraction interaction)
     {
-        logger.LogInformation($"DiscordSocketClient.InteractionCreated\n"
-            + $"Id: '{interaction.Id}'\n"
-            + $"GuildId: '{interaction.GuildId}'\n"
-            + $"ApplicationId: '{interaction.ApplicationId}'\n"
-            + $"ChannelId: '{interaction.ChannelId}'"
-            + $"Type: '{interaction.Type}'");
-
         var context = new SocketInteractionContext(discordClient, interaction);
-
         await interactionService.ExecuteCommandAsync(context, servicesProvider);
     }
 
