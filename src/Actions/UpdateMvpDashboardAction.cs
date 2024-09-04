@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
@@ -16,63 +18,45 @@ public class UpdateMvpDashboardAction(
     {
         var channel = await discordClient.GetChannelAsync(config.Value.MvpTrackerChannelId) as IMessageChannel ?? throw new Exception("Mvp channel not found");
         await InitDashboard(channel);
-        await UpdateDashboardSpawned(channel, mvpDashboardRepository.GetDashboardMessageId(0));
-        await UpdateDashboardInWindow(channel, mvpDashboardRepository.GetDashboardMessageId(1));
-        await UpdateDashboardSpawningSoon(channel, mvpDashboardRepository.GetDashboardMessageId(2));
-        await UpdateDashboardSpawningInAWhile(channel, mvpDashboardRepository.GetDashboardMessageId(3));
-
-        logger.LogInformation("Mvp Dashboard updated.");
+        await UpdateDashboard(channel, "MVPs Recently Spawned", 0, mvpTimersRepository.GetTimersSpawned());
+        await UpdateDashboard(channel, "MVPs In Window", 1, mvpTimersRepository.GetTimersInWindow());
+        await UpdateDashboard(channel, "MVPs Spawning Soon", 2, mvpTimersRepository.GetTimersSpawningSoon());
+        await UpdateDashboard(channel, "MVPs Spawning In A While", 3, mvpTimersRepository.GetTimersSpawningInAWhile());
     }
 
     private async Task InitDashboard(IMessageChannel channel)
     {
-        if (!mvpDashboardRepository.HasDashboardMessageId(0))
+        if (!mvpDashboardRepository.HasDashboardMessage(0))
             mvpDashboardRepository.UpdateDashboardMessageId(0, (await channel.SendMessageAsync("Dashboard placeholder 1")).Id);
-        if (!mvpDashboardRepository.HasDashboardMessageId(1))
+        if (!mvpDashboardRepository.HasDashboardMessage(1))
             mvpDashboardRepository.UpdateDashboardMessageId(1, (await channel.SendMessageAsync("Dashboard placeholder 2")).Id);
-        if (!mvpDashboardRepository.HasDashboardMessageId(2))
+        if (!mvpDashboardRepository.HasDashboardMessage(2))
             mvpDashboardRepository.UpdateDashboardMessageId(2, (await channel.SendMessageAsync("Dashboard placeholder 3")).Id);
-        if (!mvpDashboardRepository.HasDashboardMessageId(3))
+        if (!mvpDashboardRepository.HasDashboardMessage(3))
             mvpDashboardRepository.UpdateDashboardMessageId(3, (await channel.SendMessageAsync("Dashboard placeholder 4")).Id);
     }
 
-    private async Task UpdateDashboardSpawned(
+    private async Task UpdateDashboard(
         IMessageChannel channel,
-        ulong messageId
+        string title,
+        int page,
+        IEnumerable<(MvpTimer Timer, MvpInfo MvpInfo)> timers
     )
     {
-        var timersSpawned = mvpTimersRepository.GetTimersSpawned();
-        var discordMessage = DiscordMessages.MvpDashboard("MVPs Recently Spawned", timersSpawned);
-        await DiscordMessages.Modify(channel, messageId, discordMessage);
+        var mvpDashboardMessage = mvpDashboardRepository.GetDashboardMessage(page);
+        if (IsSameList(timers.Select(t => t.Timer.Id).ToHashSet(), mvpDashboardMessage.MvpIds.ToHashSet()))
+            return;
+
+        var discordMessage = DiscordMessages.MvpDashboard(title, timers);
+        await DiscordMessages.Modify(channel, mvpDashboardMessage.MessageId, discordMessage);
+
+        mvpDashboardRepository.UpdateDashboardMessageMvpIds(page, timers.Select(t => t.Timer.Id));
+
+        logger.LogInformation($"Mvp Dashboard '{title}' updated.");
     }
 
-    private async Task UpdateDashboardInWindow(
-        IMessageChannel channel,
-        ulong messageId
-    )
+    private bool IsSameList(HashSet<string> hashSet1, HashSet<string> hashSet2)
     {
-        var timersSpawned = mvpTimersRepository.GetTimersInWindow();
-        var discordMessage = DiscordMessages.MvpDashboard("MVPs In Window", timersSpawned);
-        await DiscordMessages.Modify(channel, messageId, discordMessage);
-    }
-
-    private async Task UpdateDashboardSpawningSoon(
-        IMessageChannel channel,
-        ulong messageId
-    )
-    {
-        var timersSpawned = mvpTimersRepository.GetTimersSpawningSoon();
-        var discordMessage = DiscordMessages.MvpDashboard("MVPs Spawning Soon", timersSpawned);
-        await DiscordMessages.Modify(channel, messageId, discordMessage);
-    }
-
-    private async Task UpdateDashboardSpawningInAWhile(
-        IMessageChannel channel,
-        ulong messageId
-    )
-    {
-        var timersSpawned = mvpTimersRepository.GetTimersSpawningInAWhile();
-        var discordMessage = DiscordMessages.MvpDashboard("MVPs Spawning In A While", timersSpawned);
-        await DiscordMessages.Modify(channel, messageId, discordMessage);
+        return hashSet1.Count == hashSet2.Count && hashSet1.All(hashSet2.Contains);
     }
 }

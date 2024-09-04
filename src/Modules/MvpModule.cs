@@ -41,7 +41,7 @@ public class MvpModule(
             {
                 logger.LogError(ex, ex.Message);
             }
-            await Task.Delay(30000, ct);
+            await Task.Delay(1000, ct);
         }
     }
 

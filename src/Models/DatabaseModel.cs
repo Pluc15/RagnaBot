@@ -4,7 +4,7 @@ public class DatabaseModel
 {
     public List<MvpTimer> MvpTimers { get; set; } = [];
 
-    public Dictionary<int, ulong> MvpDashboardMessageIds { get; set; } = [];
+    public Dictionary<int, MvpDashboardMessage> MvpDashboardMessages { get; set; } = [];
 
     public List<MvpMessageReference> MvpMessagesToCleanup { get; set; } = [];
 
