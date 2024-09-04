@@ -24,7 +24,7 @@ public class UpdateMvpDashboardAction(
         logger.LogInformation("Mvp Dashboard updated.");
     }
 
-    public async Task InitDashboard(IMessageChannel channel)
+    private async Task InitDashboard(IMessageChannel channel)
     {
         if (!mvpDashboardRepository.HasDashboardMessageId(0))
             mvpDashboardRepository.UpdateDashboardMessageId(0, (await channel.SendMessageAsync("Dashboard placeholder 1")).Id);

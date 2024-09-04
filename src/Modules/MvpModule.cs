@@ -27,12 +27,12 @@ public class MvpModule(
     {
         logger.LogInformation("Starting the MvpModule");
         discordClient.MessageReceived += DiscordMessageReceived;
-        await updateMvpDashboardAction.Run();
 
         while (!ct.IsCancellationRequested)
         {
             try
             {
+                await updateMvpDashboardAction.Run();
                 await sendMvpTimerRemindersAction.Run();
                 deleteOldMvpTimersAction.Run();
                 await cleanupMvpMessagesAction.Run();
@@ -59,6 +59,7 @@ public class MvpModule(
 
             // Process
             var (timer, mvpInfo) = registerMvpTimeOfDeathAction.Run(mvpKey, dateTimeOfDeath, Context.User);
+            await updateMvpDashboardAction.Run();
 
             // Respond
             await RespondAsync(DiscordMessages.MvpTimerAdded(timer, mvpInfo));
