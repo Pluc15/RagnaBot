@@ -10,6 +10,7 @@ public class UpdateMarketAction(
     {
         var marketListing = await arcadiaClient.GetMarketListing();
         marketListingRepository.Update(marketListing);
+
         logger.LogInformation("Market data updated.");
     }
 }

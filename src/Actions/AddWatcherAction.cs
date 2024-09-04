@@ -14,7 +14,9 @@ public class AddWatcherAction(
     {
         var itemInfo = itemInfoRepository.Search(itemId) ?? throw new ItemInfoNotFoundException(itemId);
         var watcher = marketWatcherRepository.AddOrReplace(user.Id, itemId, maximumPrice);
+
         logger.LogInformation($"Watcher created for user '{user.Username}' for item id '{itemId}' when price is equal or under '{maximumPrice}'");
+
         return (ItemInfo: itemInfo, Watcher: watcher);
     }
 }

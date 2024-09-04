@@ -2,13 +2,15 @@ using System;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 public class UpdateMvpDashboardAction(
     IOptions<Config> config,
     DiscordSocketClient discordClient,
     MvpDashboardRepository mvpDashboardRepository,
-    MvpTimersRepository mvpTimersRepository)
+    MvpTimersRepository mvpTimersRepository,
+    ILogger<UpdateMvpDashboardAction> logger)
 {
     public async Task Run()
     {
@@ -18,6 +20,8 @@ public class UpdateMvpDashboardAction(
         await UpdateDashboardInWindow(channel, mvpDashboardRepository.GetDashboardMessageId(1));
         await UpdateDashboardSpawningSoon(channel, mvpDashboardRepository.GetDashboardMessageId(2));
         await UpdateDashboardSpawningInAWhile(channel, mvpDashboardRepository.GetDashboardMessageId(3));
+
+        logger.LogInformation("Mvp Dashboard updated.");
     }
 
     public async Task InitDashboard(IMessageChannel channel)
