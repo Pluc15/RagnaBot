@@ -23,12 +23,17 @@ public class TimeOfDeathParser
                 : DateTime.UtcNow.Date.AddDays(-1).Add(timeSpanOfDeath);
         }
 
-        var agoFormat = Regex.Match(timeOfDeath, "^([1-9][0-9]*)m$");
+        var agoFormat = Regex.Match(timeOfDeath, "^([0-9]+)m$");
         if (agoFormat.Success)
         {
             var minutesAgo = Convert.ToInt32(agoFormat.Groups[1].Value);
 
             return DateTime.UtcNow.AddMinutes(-minutesAgo);
+        }
+
+        if (string.Equals(timeOfDeath, "now", StringComparison.InvariantCultureIgnoreCase))
+        {
+            return DateTime.UtcNow;
         }
 
         throw new MvpInvalidTimeOfDeathFormatException();
