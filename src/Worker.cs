@@ -21,7 +21,7 @@ public class Worker(
         await Task.WhenAny(
             database.StartSaveWatcher(cancellationToken),
             marketDatabase.StartSaveWatcher(cancellationToken),
-            marketModule.Start(cancellationToken),
+            // marketModule.Start(cancellationToken),
             mvpModule.Start(cancellationToken)
         );
     }
