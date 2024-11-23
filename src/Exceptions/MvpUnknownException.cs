@@ -1,3 +1,3 @@
 using System;
 
-public class MvpUnknownException(string mvpName) : Exception($"Unknown MvP '{mvpName}'");
+public class MvpUnknownException(string mvpId) : Exception($"Unknown MvP '{mvpId}'");

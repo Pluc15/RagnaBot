@@ -6,8 +6,6 @@ public class MvpInfo
 
     public required string Id { get; init; }
 
-    public required string[] MvpKeys { get; init; }
-
     public required string MvpName { get; init; }
 
     public required string Map { get; init; }

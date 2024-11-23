@@ -8,12 +8,12 @@ public class RegisterMvpTimeOfDeathAction(
     ILogger<RegisterMvpTimeOfDeathAction> logger)
 {
     public (MvpTimer Timer, MvpInfo MvpInfo) Run(
-        string mvpKey,
+        string mvpId,
         DateTime timeOfDeath,
         IUser user
     )
     {
-        var mvpInfo = mvpInfoRepository.Search(mvpKey) ?? throw new MvpUnknownException(mvpKey);
+        var mvpInfo = mvpInfoRepository.Find(mvpId) ?? throw new MvpUnknownException(mvpId);
 
         // TODO Check if it already exist - ask for confirmation
 

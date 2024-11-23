@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Interactions;
-using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -11,8 +10,6 @@ using Microsoft.Extensions.Options;
 [IntegrationType(ApplicationIntegrationType.GuildInstall)]
 public class MvpModule(
         IOptions<Config> config,
-        DiscordSocketClient discordClient,
-        QueueMessageForCleanupAction queueMessageForCleanupAction,
         RegisterMvpTimeOfDeathAction registerMvpTimeOfDeathAction,
         UpdateMvpDashboardAction updateMvpDashboardAction,
         CleanupMvpMessagesAction cleanupMvpMessagesAction,
@@ -26,7 +23,6 @@ public class MvpModule(
     )
     {
         logger.LogInformation("Starting the MvpModule");
-        discordClient.MessageReceived += DiscordMessageReceived;
 
         while (!ct.IsCancellationRequested)
         {
@@ -46,7 +42,10 @@ public class MvpModule(
     }
 
     [SlashCommand("mvp", "Report a MvP that has fallen")]
-    public async Task Mvp(string mvpKey, string timeOfDeath)
+    public async Task Mvp(
+        [Autocomplete(typeof(MvpAutocomplete))]
+        string mvpKey,
+        string timeOfDeath)
     {
         if (Context.Channel.Id != config.Value.MvpTrackerChannelId)
             return;
@@ -79,12 +78,5 @@ public class MvpModule(
             logger.LogError(ex, ex.Message);
             await RespondAsync(DiscordMessages.UnexpectedError(ex));
         }
-    }
-
-    private Task DiscordMessageReceived(SocketMessage message)
-    {
-        if (message.Channel.Id == config.Value.MvpTrackerChannelId)
-            queueMessageForCleanupAction.Run(message, DateTime.UtcNow.AddSeconds(30));
-        return Task.CompletedTask;
     }
 }
