@@ -31,20 +31,19 @@ public static class DiscordMessages
         IEnumerable<(MvpTimer Timer, MvpInfo MvpInfo)> timersSpawned
     )
     {
-        var embedBuilder = new EmbedBuilder()
-            .WithTitle($"__**{title}**__");
-
+        var message = new StringBuilder();
+        message.AppendLine($"# {title}");
         foreach (var timer in timersSpawned)
         {
             var nextSpawn = SpawnCalculator.GetNextSpawn(timer.Timer, timer.MvpInfo);
             var nextSpawnWindowEnd = SpawnCalculator.GetNextSpawnWindowEnd(timer.Timer, timer.MvpInfo);
-            embedBuilder
-                .AddField("MVP", $"{timer.MvpInfo.MvpName}\n{timer.MvpInfo.Map}", true)
-                .AddField("Spawn time", $"<t:{nextSpawn.ToEpoch()}:t> to <t:{nextSpawnWindowEnd.ToEpoch()}:t>\n<t:{nextSpawn.ToEpoch()}:R>", true)
-                .AddField("Reported by", Formatter.FormatUserMention(timer.Timer.ReportedByUserId), true);
+            message.AppendLine(
+                $"{timer.MvpInfo.MvpName} - {timer.MvpInfo.Map}" +
+                $" | <t:{nextSpawn.ToEpoch()}:t> to <t:{nextSpawnWindowEnd.ToEpoch()}:t> - <t:{nextSpawn.ToEpoch()}:R>" +
+                $" | {Formatter.FormatUserMention(timer.Timer.ReportedByUserId)}");
         }
 
-        return new DiscordMessage(embed: embedBuilder.Build());
+        return new DiscordMessage(message.ToString());
     }
 
     public static DiscordMessage MvpTimerAdded(
