@@ -25,8 +25,11 @@ public class MvpDashboardRepository(Database database)
     )
     {
         if (database.Data == null) throw new Exception("Data not loaded.");
-        database.Data.MvpDashboardMessages[page].MessageId = messageId;
-        database.Data.MvpDashboardMessages[page].MvpIds = [];
+        database.Data.MvpDashboardMessages[page] = new MvpDashboardMessage
+        {
+            MessageId = messageId,
+            MvpIds = []
+        };
         database.Dirty = true;
     }
 
