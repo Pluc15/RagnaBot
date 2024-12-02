@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-public class DatabaseModel
+public class MvpDatabaseModel
 {
     public List<MvpTimer> MvpTimers { get; set; } = [];
 

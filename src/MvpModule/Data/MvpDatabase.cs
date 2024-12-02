@@ -7,15 +7,15 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Polly;
 
-public class Database(
+public class MvpDatabase(
     IOptions<Config> config,
-    ILogger<Database> logger)
+    ILogger<MvpDatabase> logger)
 {
-    private DatabaseModel? _data;
+    private MvpDatabaseModel? _data;
 
     public bool Dirty { get; set; }
 
-    public DatabaseModel Data => _data ?? throw new Exception("Data not loaded.");
+    public MvpDatabaseModel Data => _data ?? throw new Exception("Data not loaded.");
 
     private readonly Policy _saveRetryPolicy = Policy
         .Handle<Exception>()
@@ -31,12 +31,12 @@ public class Database(
         if (File.Exists(config.Value.SaveFile))
         {
             var loadData = await File.ReadAllTextAsync(config.Value.SaveFile);
-            _data = JsonConvert.DeserializeObject<DatabaseModel>(loadData) ?? throw new Exception("Failed to deserialize the save file.");
+            _data = JsonConvert.DeserializeObject<MvpDatabaseModel>(loadData) ?? throw new Exception("Failed to deserialize the save file.");
             logger.LogInformation("Loaded database.");
         }
         else
         {
-            _data = new DatabaseModel();
+            _data = new MvpDatabaseModel();
             logger.LogInformation("No database, created a fresh one.");
         }
     }

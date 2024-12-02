@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-public class MvpDashboardRepository(Database database)
+public class MvpDashboardRepository(MvpDatabase database)
 {
     public bool HasDashboardMessage(
         int page

@@ -15,7 +15,7 @@ public static class DependencyInjection
         builder.Services.AddSingleton(sp => sp);
 
         // Databases
-        builder.Services.AddSingleton<Database>();
+        builder.Services.AddSingleton<MvpDatabase>();
         builder.Services.AddSingleton<ItemInfoDatabase>();
         builder.Services.AddSingleton<MarketDatabase>();
         builder.Services.AddSingleton<MvpInfoDatabase>();

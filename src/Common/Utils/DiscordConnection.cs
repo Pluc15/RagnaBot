@@ -6,6 +6,7 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
+// TODO Split this into module specific
 public class DiscordConnection(
     IOptions<Config> config,
     IServiceProvider servicesProvider,

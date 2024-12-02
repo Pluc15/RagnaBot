@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public class MvpMessagesCleanupRepository(Database db)
+public class MvpMessagesCleanupRepository(MvpDatabase db)
 {
     public void Add(
         ulong id,

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Discord;
 
-public class MvpTimersRepository(Database database, MvpInfoDatabase mvpInfoDatabase)
+public class MvpTimersRepository(MvpDatabase database, MvpInfoDatabase mvpInfoDatabase)
 {
     public IEnumerable<(MvpTimer Timer, MvpInfo MvpInfo)> GetTimersSpawningInAWhile()
     {

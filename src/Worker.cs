@@ -4,7 +4,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 public class Worker(
-    Database database,
+    MvpDatabase database,
     MarketDatabase marketDatabase,
     MarketModule marketModule,
     MvpModule mvpModule,
