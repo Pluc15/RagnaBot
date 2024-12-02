@@ -45,6 +45,7 @@ public static class DependencyInjection
         // Modules
         builder.Services.AddSingleton<MarketModule>();
         builder.Services.AddSingleton<MvpModule>();
+        builder.Services.AddSingleton<TimeTagModule>();
 
         // Workers
         builder.Services.AddHostedService<Worker>();
