@@ -46,6 +46,30 @@ public static partial class DiscordMessages
         return new DiscordMessage(embed: embedBuilder.Build(), ephemeral: true);
     }
 
+    public static DiscordMessage MvpTimerAlreadyExists(
+        MvpTimer mvpTimer,
+        MvpInfo mvpInfo,
+        string overrideCustomId
+    )
+    {
+        var nextSpawn = SpawnCalculator.GetNextSpawn(mvpTimer, mvpInfo);
+        var nextSpawnWindowEnd = SpawnCalculator.GetNextSpawnWindowEnd(mvpTimer, mvpInfo);
+        var nextReminder = SpawnCalculator.GetNextReminder(mvpTimer, mvpInfo);
+
+        var buttonBuilder = new ComponentBuilder()
+            .WithButton("Override?", overrideCustomId, ButtonStyle.Primary);
+
+        var embedBuilder = new EmbedBuilder()
+            .WithUrl(ArcadiaRoUrlBuilder.GetMobInfoUrl(mvpInfo.RagnarokId.ToString()))
+            .WithThumbnailUrl(ArcadiaRoUrlBuilder.GetMobImageUrl(mvpInfo.RagnarokId.ToString()))
+            .WithTitle(mvpInfo.MvpName)
+            .AddField("Map", mvpInfo.Map, true)
+            .AddField("Spawn time", $"<t:{nextSpawn.ToEpoch()}:t> to <t:{nextSpawnWindowEnd.ToEpoch()}:t>\n<t:{nextSpawn.ToEpoch()}:R>", true)
+            .AddField("Reminder", $"<t:{nextReminder.ToEpoch()}:t>", true);
+
+        return new DiscordMessage(message: "# Override this timer?", embed: embedBuilder.Build(), ephemeral: true, messageComponent: buttonBuilder.Build());
+    }
+
     public static DiscordMessage MvpTimeTriggered(
         MvpTimer timer,
         MvpInfo mvpInfo,

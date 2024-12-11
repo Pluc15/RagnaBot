@@ -50,6 +50,48 @@ public class MvpModule(
         if (Context.Channel.Id != config.Value.MvpTrackerChannelId)
             return;
 
+        DateTime? dateTimeOfDeath = null;
+
+        try
+        {
+            // Parse arguments
+            mvpKey = mvpKey.Trim().ToLower().Replace(" ", "");
+            dateTimeOfDeath = TimeOfDeathParser.Parse(timeOfDeath);
+
+            // Process
+            var (timer, mvpInfo) = registerMvpTimeOfDeathAction.Run(mvpKey, dateTimeOfDeath.Value, Context.User);
+            await updateMvpDashboardAction.Run();
+
+            // Respond
+            await RespondAsync(DiscordMessages.MvpTimerAdded(timer, mvpInfo));
+        }
+        catch (MvpTimerAlreadyExists ex)
+        {
+            await RespondAsync(DiscordMessages.MvpTimerAlreadyExists(ex.ExistingMvpTimer, ex.MvpInfo, $"mvp_override_confirm:{mvpKey}:{dateTimeOfDeath?.ToString("HH:mm")}"));
+        }
+        catch (MvpUnknownException ex)
+        {
+            logger.LogWarning(ex, ex.Message);
+            await RespondAsync(DiscordMessages.MvpUnknown(ex));
+        }
+        catch (MvpInvalidTimeOfDeathFormatException ex)
+        {
+            logger.LogWarning(ex, ex.Message);
+            await RespondAsync(DiscordMessages.MvpInvalidTimeOfDeathFormat(ex));
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, ex.Message);
+            await RespondAsync(DiscordMessages.UnexpectedError(ex));
+        }
+    }
+
+    [ComponentInteraction("mvp_override_confirm:*:*")]
+    public async Task MvpOverrideConfirm(
+        string mvpKey,
+        string timeOfDeath
+    )
+    {
         try
         {
             // Parse arguments
@@ -57,7 +99,7 @@ public class MvpModule(
             var dateTimeOfDeath = TimeOfDeathParser.Parse(timeOfDeath);
 
             // Process
-            var (timer, mvpInfo) = registerMvpTimeOfDeathAction.Run(mvpKey, dateTimeOfDeath, Context.User);
+            var (timer, mvpInfo) = registerMvpTimeOfDeathAction.Run(mvpKey, dateTimeOfDeath, Context.User, true);
             await updateMvpDashboardAction.Run();
 
             // Respond

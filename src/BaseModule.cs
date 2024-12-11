@@ -9,6 +9,7 @@ public abstract class BaseModule : InteractionModuleBase<SocketInteractionContex
             message.Message,
             embed: message.Embed,
             allowedMentions: message.AllowedMentions,
-            ephemeral: message.Ephemeral);
+            ephemeral: message.Ephemeral,
+            components: message.MessageComponent);
     }
 }

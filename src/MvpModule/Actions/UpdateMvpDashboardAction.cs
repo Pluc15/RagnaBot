@@ -44,6 +44,7 @@ public class UpdateMvpDashboardAction(
     )
     {
         var mvpDashboardMessage = mvpDashboardRepository.GetDashboardMessage(page);
+        // FIXME When you override a timer, the list is "same", would need to have death ticks in the hash set
         if (IsSameList(timers.Select(t => t.Timer.Id).ToHashSet(), mvpDashboardMessage.MvpIds.ToHashSet()))
             return;
 

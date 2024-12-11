@@ -82,6 +82,11 @@ public class MvpTimersRepository(MvpDatabase database, MvpInfoDatabase mvpInfoDa
         return timer;
     }
 
+    public MvpTimer? GetExisting(MvpInfo mvpInfo)
+    {
+        return database.Data.MvpTimers.SingleOrDefault(t => t.Id == mvpInfo.Id);
+    }
+
     private IEnumerable<(MvpTimer Timer, MvpInfo MvpInfo)> GetAllTimersWithMvpInfo()
     {
         return database.Data.MvpTimers.GroupJoin(
