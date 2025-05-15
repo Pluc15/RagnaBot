@@ -4,13 +4,11 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Interactions;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 [CommandContextType(InteractionContextType.PrivateChannel, InteractionContextType.Guild)]
 [IntegrationType(ApplicationIntegrationType.GuildInstall)]
 [Group("market", "Market watcher")]
 public class MarketModule(
-        IOptions<Config> config,
         AddWatcherAction addWatcherAction,
         DeleteWatcherAction deleteWatcherAction,
         GetWatchersForUserAction getWatchersForUserAction,
@@ -42,9 +40,6 @@ public class MarketModule(
     [SlashCommand("add", "Add a watched item")]
     public async Task Watch(int itemId, int maximumPrice)
     {
-        if (Context.Channel.Id != config.Value.MarketTrackerChannelId)
-            return;
-
         try
         {
             // Process
@@ -68,9 +63,6 @@ public class MarketModule(
     [SlashCommand("remove", "Stop watching an item")]
     public async Task Unwatch(int itemId)
     {
-        if (Context.Channel.Id != config.Value.MarketTrackerChannelId)
-            return;
-
         try
         {
             // Process
@@ -99,9 +91,6 @@ public class MarketModule(
     [SlashCommand("list", "List your watched items")]
     public async Task Watchlist()
     {
-        if (Context.Channel.Id != config.Value.MarketTrackerChannelId)
-            return;
-
         try
         {
             var watchers = getWatchersForUserAction.Run(Context.User);

@@ -1,6 +1,6 @@
 # RagnaBot
 
-A multi featured Ragnarok guild bot.
+A multi featured Ragnarok Discord bot for Arcadia.
 
 # Commands
 
@@ -11,4 +11,13 @@ A multi featured Ragnarok guild bot.
 /market add <item-id> <maximum-price>
 /market remove <item-id>
 /market list
+/timetag timezone iso_datetime
 ```
+
+# Wishlist
+
+- Isolate MVP timers and channel configs per Discord server so it can be installed on different discords.
+- Switch to a mongodb container.
+- Add a time series DB to store the market api data for later use.
+- Improve /timezone parsing of timezone and datetime
+- Add a user config for timezone preference so he can skip it in the future

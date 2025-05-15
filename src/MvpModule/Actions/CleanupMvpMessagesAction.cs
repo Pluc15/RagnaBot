@@ -3,10 +3,9 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 public class CleanupMvpMessagesAction(
-    IOptions<Config> config,
+    MvpConfigRepository mvpConfigRepository,
     MvpMessagesCleanupRepository MvpMessagesCleanupRepository,
     DiscordSocketClient discordClient,
     ILogger<CleanupMvpMessagesAction> logger)
@@ -23,9 +22,14 @@ public class CleanupMvpMessagesAction(
         MvpMessageReference mvpMessageReference
     )
     {
+
         try
         {
-            var channel = await discordClient.GetChannelAsync(config.Value.MvpTrackerChannelId) as IMessageChannel ?? throw new Exception("Mvp channel not found");
+            var mvpTrackerChannelId = mvpConfigRepository.GetMvpTrackerChannelId();
+            if (!mvpTrackerChannelId.HasValue)
+                throw new Exception("Mvp channel not configured");
+
+            var channel = await discordClient.GetChannelAsync(mvpTrackerChannelId.Value) as IMessageChannel ?? throw new Exception("Mvp channel not found");
             var message = await channel.GetMessageAsync(mvpMessageReference.Id);
             await message.DeleteAsync();
             logger.LogInformation($"Message deleted: '{message.Content}' by '{message.Author.Username}'");

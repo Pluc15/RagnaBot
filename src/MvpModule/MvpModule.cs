@@ -4,12 +4,10 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Interactions;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 [CommandContextType(InteractionContextType.PrivateChannel, InteractionContextType.Guild)]
 [IntegrationType(ApplicationIntegrationType.GuildInstall)]
 public class MvpModule(
-        IOptions<Config> config,
         RegisterMvpTimeOfDeathAction registerMvpTimeOfDeathAction,
         UpdateMvpDashboardAction updateMvpDashboardAction,
         CleanupMvpMessagesAction cleanupMvpMessagesAction,
@@ -47,9 +45,6 @@ public class MvpModule(
         string mvpKey,
         string timeOfDeath)
     {
-        if (Context.Channel.Id != config.Value.MvpTrackerChannelId)
-            return;
-
         DateTime? dateTimeOfDeath = null;
 
         try

@@ -32,8 +32,7 @@ public class MvpInfoDatabase()
             RespawnDuration = TimeSpan.FromMinutes(100),
             RespawnVariance = TimeSpan.FromMinutes(30),
             RespawnReminder = TimeSpan.FromMinutes(15),
-            RagnarokId = 1646,
-            IsHighEnd = true
+            RagnarokId = 1646
         },
         new MvpInfo
         {
@@ -323,8 +322,7 @@ public class MvpInfoDatabase()
             RespawnDuration = TimeSpan.FromMinutes(120),
             RespawnVariance = TimeSpan.FromMinutes(0),
             RespawnReminder = TimeSpan.FromMinutes(40),
-            RagnarokId = 1708,
-            IsHighEnd = true
+            RagnarokId = 1708
         },
         new MvpInfo
         {
@@ -344,8 +342,7 @@ public class MvpInfoDatabase()
             RespawnDuration = TimeSpan.FromMinutes(480),
             RespawnVariance = TimeSpan.FromMinutes(10),
             RespawnReminder = TimeSpan.FromMinutes(20),
-            RagnarokId = 1765,
-            IsHighEnd = true
+            RagnarokId = 1765
         },
         new MvpInfo
         {

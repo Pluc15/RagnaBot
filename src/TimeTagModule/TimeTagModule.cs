@@ -2,13 +2,10 @@ using System;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Interactions;
-using Microsoft.Extensions.Logging;
 
 [CommandContextType(InteractionContextType.PrivateChannel, InteractionContextType.Guild)]
 [IntegrationType(ApplicationIntegrationType.GuildInstall)]
-public class TimeTagModule(
-        ILogger<TimeTagModule> logger
-    ) : BaseModule
+public class TimeTagModule() : BaseModule
 {
     [SlashCommand("timetag", "Generate a time tag so everyone can see the time in their timezone")]
     public async Task TimeTag(

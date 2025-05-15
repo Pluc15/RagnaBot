@@ -2,8 +2,6 @@ using System;
 
 public class MvpInfo
 {
-    public bool IsHighEnd { get; init; } = false;
-
     public required string Id { get; init; }
 
     public required string MvpName { get; init; }

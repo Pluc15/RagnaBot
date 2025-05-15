@@ -26,10 +26,10 @@ public class ArcadiaClient
         return JsonSerializer.Deserialize<Market>(body) ?? throw new Exception("Failed to deserialize the Market from the API.");
     }
 
-    public async Task<Market> GetMarketListingSampleData()
+    public Task<Market> GetMarketListingSampleData()
     {
         var body = File.ReadAllText($"SampleData/market_response_sample.json");
-        return JsonSerializer.Deserialize<Market>(body) ?? throw new Exception("Failed to deserialize the Market from the API.");
+        return Task.FromResult(JsonSerializer.Deserialize<Market>(body) ?? throw new Exception("Failed to deserialize the Market from the API."));
     }
 
     public Market BuildFakeData()

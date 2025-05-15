@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public class MarketWatcherRepository(MvpDatabase db)
+public class MarketWatcherRepository(Database db)
 {
     public MarketWatcher AddOrReplace(
         ulong userId,

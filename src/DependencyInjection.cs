@@ -15,15 +15,17 @@ public static class DependencyInjection
         builder.Services.AddSingleton(sp => sp);
 
         // Databases
-        builder.Services.AddSingleton<MvpDatabase>();
+        builder.Services.AddSingleton<Database>();
         builder.Services.AddSingleton<ItemInfoDatabase>();
         builder.Services.AddSingleton<MarketDatabase>();
         builder.Services.AddSingleton<MvpInfoDatabase>();
 
         // Repositories
         builder.Services.AddSingleton<ItemInfoRepository>();
+        builder.Services.AddSingleton<MarketConfigRepository>();
         builder.Services.AddSingleton<MarketListingRepository>();
         builder.Services.AddSingleton<MarketWatcherRepository>();
+        builder.Services.AddSingleton<MvpConfigRepository>();
         builder.Services.AddSingleton<MvpDashboardRepository>();
         builder.Services.AddSingleton<MvpInfoRepository>();
         builder.Services.AddSingleton<MvpMessagesCleanupRepository>();

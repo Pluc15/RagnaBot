@@ -4,10 +4,9 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 public class SendMvpTimerRemindersAction(
-    IOptions<Config> config,
+    MvpConfigRepository mvpConfigRepository,
     MvpTimersRepository mvpTimersRepository,
     MvpMessagesCleanupRepository mvpMessagesCleanupRepository,
     DiscordSocketClient discordClient,
@@ -15,20 +14,20 @@ public class SendMvpTimerRemindersAction(
 {
     public async Task Run()
     {
+        var mvpTrackerChannelId = mvpConfigRepository.GetMvpTrackerChannelId();
+        if (!mvpTrackerChannelId.HasValue)
+            return;
+
+        var channel = await discordClient.GetChannelAsync(mvpTrackerChannelId.Value) as IMessageChannel ?? throw new Exception("Mvp channel not found");
+
+        var roles = new List<ulong>();
+
+        var mvpTrackerRoleId = mvpConfigRepository.GetMvpTrackerRoleId();
+        if (mvpTrackerRoleId.HasValue)
+            roles.Add(mvpTrackerRoleId.Value);
+
         foreach (var timer in mvpTimersRepository.GetTimersWithReminderDue())
         {
-            var channel = await discordClient.GetChannelAsync(config.Value.MvpTrackerChannelId) as IMessageChannel ?? throw new Exception("Mvp channel not found");
-
-            var roles = new List<ulong>
-            {
-                config.Value.MvpTrackerRoleId
-            };
-
-            if (timer.MvpInfo.IsHighEnd)
-            {
-                roles.Add(config.Value.MvpHighEndTeamRoleId);
-            }
-
             var discordMessage = DiscordMessages.MvpTimeTriggered(timer.Timer, timer.MvpInfo, roles);
             var message = await DiscordMessages.Send(channel, discordMessage);
 

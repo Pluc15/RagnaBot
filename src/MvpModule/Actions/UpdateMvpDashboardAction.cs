@@ -5,18 +5,22 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 public class UpdateMvpDashboardAction(
-    IOptions<Config> config,
     DiscordSocketClient discordClient,
+    MvpConfigRepository mvpChannelRepository,
     MvpDashboardRepository mvpDashboardRepository,
     MvpTimersRepository mvpTimersRepository,
     ILogger<UpdateMvpDashboardAction> logger)
 {
     public async Task Run()
     {
-        var channel = await discordClient.GetChannelAsync(config.Value.MvpTrackerChannelId) as IMessageChannel ?? throw new Exception("Mvp channel not found");
+        var mvpTrackerChannelId = mvpChannelRepository.GetMvpTrackerChannelId();
+        if (!mvpTrackerChannelId.HasValue)
+            return;
+
+        var channel = await discordClient.GetChannelAsync(mvpTrackerChannelId.Value) as IMessageChannel ?? throw new Exception("Mvp channel not found");
+
         await InitDashboard(channel);
         await UpdateDashboard(channel, "MVPs Recently Spawned", 0, mvpTimersRepository.GetTimersSpawned());
         await UpdateDashboard(channel, "MVPs In Window", 1, mvpTimersRepository.GetTimersInWindow());

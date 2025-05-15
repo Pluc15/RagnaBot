@@ -8,15 +8,15 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
 
-public class MvpDatabase(
+public class Database(
     IOptions<Config> config,
-    ILogger<MvpDatabase> logger)
+    ILogger<Database> logger)
 {
-    private MvpDatabaseModel? _data;
+    private DatabaseModel? _data;
 
     public bool Dirty { get; set; }
 
-    public MvpDatabaseModel Data => _data ?? throw new Exception("Data not loaded.");
+    public DatabaseModel Data => _data ?? throw new Exception("Data not loaded.");
 
     private readonly Policy _saveRetryPolicy = Policy
         .Handle<Exception>()
@@ -33,12 +33,12 @@ public class MvpDatabase(
         if (File.Exists(config.Value.SaveFile))
         {
             var loadData = await File.ReadAllTextAsync(config.Value.SaveFile);
-            _data = JsonSerializer.Deserialize<MvpDatabaseModel>(loadData) ?? throw new Exception("Failed to deserialize the save file.");
+            _data = JsonSerializer.Deserialize<DatabaseModel>(loadData) ?? throw new Exception("Failed to deserialize the save file.");
             logger.LogInformation("Loaded database.");
         }
         else
         {
-            _data = new MvpDatabaseModel();
+            _data = new DatabaseModel();
             logger.LogInformation("No database, created a fresh one.");
         }
     }

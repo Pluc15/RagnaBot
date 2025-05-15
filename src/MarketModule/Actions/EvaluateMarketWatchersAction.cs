@@ -4,10 +4,9 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 public class EvaluateMarketWatchersAction(
-    IOptions<Config> config,
+    MarketConfigRepository marketChannelRepository,
     MarketWatcherRepository marketWatcherRepository,
     MarketListingRepository marketListingRepository,
     ItemInfoRepository itemInfoRepository,
@@ -42,7 +41,7 @@ public class EvaluateMarketWatchersAction(
         if (triggeredMarketWatchers.Count == 0)
             return;
 
-        var channel = await discordClient.GetChannelAsync(config.Value.MarketTrackerChannelId) as IMessageChannel ?? throw new Exception("Market channel not found");
+        var channel = await discordClient.GetChannelAsync(marketChannelRepository.GetMarketTrackerChannelId()) as IMessageChannel ?? throw new Exception("Market channel not found");
 
         foreach (var (watcher, shopItem, shop, itemInfo) in triggeredMarketWatchers)
         {
