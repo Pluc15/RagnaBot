@@ -6,6 +6,11 @@ using Discord;
 // TODO Split the partial
 public static partial class DiscordMessages
 {
+    public static DiscordMessage MarketConfigurationUpdated()
+    {
+        return new DiscordMessage(message: "Market configuration updated :check:", ephemeral: true);
+    }
+
     public static DiscordMessage MarketWatcherCreated(
         ItemInfo itemInfo,
         MarketWatcher watcher

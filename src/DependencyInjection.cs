@@ -20,33 +20,9 @@ public static class DependencyInjection
         builder.Services.AddSingleton<MarketDatabase>();
         builder.Services.AddSingleton<MvpInfoDatabase>();
 
-        // Repositories
-        builder.Services.AddSingleton<ItemInfoRepository>();
-        builder.Services.AddSingleton<MarketConfigRepository>();
-        builder.Services.AddSingleton<MarketListingRepository>();
-        builder.Services.AddSingleton<MarketWatcherRepository>();
-        builder.Services.AddSingleton<MvpConfigRepository>();
-        builder.Services.AddSingleton<MvpDashboardRepository>();
-        builder.Services.AddSingleton<MvpInfoRepository>();
-        builder.Services.AddSingleton<MvpMessagesCleanupRepository>();
-        builder.Services.AddSingleton<MvpTimersRepository>();
-
-        // Actions
-        builder.Services.AddSingleton<AddWatcherAction>();
-        builder.Services.AddSingleton<CleanupMvpMessagesAction>();
-        builder.Services.AddSingleton<DeleteOldMvpTimersAction>();
-        builder.Services.AddSingleton<DeleteWatcherAction>();
-        builder.Services.AddSingleton<EvaluateMarketWatchersAction>();
-        builder.Services.AddSingleton<GetWatchersForUserAction>();
-        builder.Services.AddSingleton<QueueMessageForCleanupAction>();
-        builder.Services.AddSingleton<RegisterMvpTimeOfDeathAction>();
-        builder.Services.AddSingleton<SendMvpTimerRemindersAction>();
-        builder.Services.AddSingleton<UpdateMarketAction>();
-        builder.Services.AddSingleton<UpdateMvpDashboardAction>();
-
         // Modules
-        builder.Services.AddSingleton<MarketModule>();
-        builder.Services.AddSingleton<MvpModule>();
+        builder.RegisterMvpServices();
+        builder.RegisterMarketServices();
         builder.Services.AddSingleton<TimeTagModule>();
 
         // Workers

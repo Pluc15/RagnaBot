@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
@@ -41,16 +42,28 @@ public class EvaluateMarketWatchersAction(
         if (triggeredMarketWatchers.Count == 0)
             return;
 
-        var channel = await discordClient.GetChannelAsync(marketChannelRepository.GetMarketTrackerChannelId()) as IMessageChannel ?? throw new Exception("Market channel not found");
+        var snoozeDuration = TimeSpan.FromHours(12);
+        await SendAlerts(triggeredMarketWatchers, snoozeDuration);
 
         foreach (var (watcher, shopItem, shop, itemInfo) in triggeredMarketWatchers)
-        {
-            var snoozeDuration = TimeSpan.FromHours(12);
-            var discordMessage = DiscordMessages.MarketWatcherTriggered(watcher, shopItem, shop, itemInfo, snoozeDuration);
-            await DiscordMessages.Send(channel, discordMessage);
             marketWatcherRepository.Snooze(watcher.UserId, watcher.ItemId, snoozeDuration);
-        }
 
         logger.LogInformation($"'{triggeredMarketWatchers.Count}' watchers notifications sent.");
+    }
+
+    private async Task SendAlerts(List<(MarketWatcher Watcher, ShopItem ShopItem, Shop Shop, ItemInfo ItemInfo)> triggeredMarketWatchers, TimeSpan snoozeDuration)
+    {
+        ulong? marketTrackerChannelId = marketChannelRepository.GetMarketTrackerChannelId();
+        if (marketTrackerChannelId == null)
+        {
+            logger.LogWarning($"No channels to send market alert to.");
+            return;
+        }
+        var channel = await discordClient.GetChannelAsync(marketTrackerChannelId.Value) as IMessageChannel ?? throw new Exception("Market channel not found");
+        foreach (var (watcher, shopItem, shop, itemInfo) in triggeredMarketWatchers)
+        {
+            var discordMessage = DiscordMessages.MarketWatcherTriggered(watcher, shopItem, shop, itemInfo, snoozeDuration);
+            await DiscordMessages.Send(channel, discordMessage);
+        }
     }
 }

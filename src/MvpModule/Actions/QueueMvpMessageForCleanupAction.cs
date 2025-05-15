@@ -2,9 +2,9 @@ using System;
 using Discord;
 using Microsoft.Extensions.Logging;
 
-public class QueueMessageForCleanupAction(
+public class QueueMvpMessageForCleanupAction(
     MvpMessagesCleanupRepository MvpMessagesCleanupRepository,
-    ILogger<QueueMessageForCleanupAction> logger)
+    ILogger<QueueMvpMessageForCleanupAction> logger)
 {
     public void Run(
         IMessage message,

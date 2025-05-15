@@ -9,4 +9,14 @@ public class MvpConfigRepository(Database database)
     {
         return database.Data.Config.MvpTrackerRoleId;
     }
+
+    public void SetMvpTrackerChannelId(ulong? mvpTrackerChannelId)
+    {
+        database.Data.Config.MvpTrackerChannelId = mvpTrackerChannelId;
+    }
+
+    public void SetMvpTrackerRoleId(ulong? mvpTrackerRoleId)
+    {
+        database.Data.Config.MvpTrackerRoleId = mvpTrackerRoleId;
+    }
 }

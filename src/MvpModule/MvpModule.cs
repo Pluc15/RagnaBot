@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 [CommandContextType(InteractionContextType.PrivateChannel, InteractionContextType.Guild)]
 [IntegrationType(ApplicationIntegrationType.GuildInstall)]
 public class MvpModule(
+    UpdateMvpConfigurationAction updateMvpConfigurationAction,
         RegisterMvpTimeOfDeathAction registerMvpTimeOfDeathAction,
         UpdateMvpDashboardAction updateMvpDashboardAction,
         CleanupMvpMessagesAction cleanupMvpMessagesAction,
@@ -36,6 +37,30 @@ public class MvpModule(
                 logger.LogError(ex, ex.Message);
             }
             await Task.Delay(1000, ct);
+        }
+    }
+
+
+    [SlashCommand("mvpconfig", "Configure the market watcher")]
+    [RequireUserPermission(GuildPermission.Administrator)]
+    public async Task Watch(
+        [Summary("channel", "The channel to send MVP alerts to")]
+        IChannel? channel,
+        [Summary("role", "The role to ping in MVP alerts")]
+        IRole? role)
+    {
+        try
+        {
+            // Process
+            updateMvpConfigurationAction.Run(channel, role);
+
+            // Respond
+            await RespondAsync(DiscordMessages.MvpConfigurationUpdated());
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, ex.Message);
+            await RespondAsync(DiscordMessages.UnexpectedError(ex));
         }
     }
 

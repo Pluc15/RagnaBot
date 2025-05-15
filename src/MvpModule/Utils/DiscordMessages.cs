@@ -6,6 +6,11 @@ using Discord;
 // TODO Split the partial
 public static partial class DiscordMessages
 {
+    public static DiscordMessage MvpConfigurationUpdated()
+    {
+        return new DiscordMessage(message: "MVP configuration updated :check:", ephemeral: true);
+    }
+
     public static DiscordMessage MvpDashboard(
         string title,
         IEnumerable<(MvpTimer Timer, MvpInfo MvpInfo)> timersSpawned

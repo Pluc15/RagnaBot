@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 public class CleanupMvpMessagesAction(
     MvpConfigRepository mvpConfigRepository,
-    MvpMessagesCleanupRepository MvpMessagesCleanupRepository,
+    MvpMessagesCleanupRepository mvpMessagesCleanupRepository,
     DiscordSocketClient discordClient,
     ILogger<CleanupMvpMessagesAction> logger)
 {
@@ -14,7 +14,7 @@ public class CleanupMvpMessagesAction(
         string? mvpId = null
     )
     {
-        foreach (var mvpMessageReference in mvpId == null ? MvpMessagesCleanupRepository.GetExpired() : MvpMessagesCleanupRepository.GetForMvpId(mvpId))
+        foreach (var mvpMessageReference in mvpId == null ? mvpMessagesCleanupRepository.GetExpired() : mvpMessagesCleanupRepository.GetForMvpId(mvpId))
             await DeleteMessage(mvpMessageReference);
     }
 
@@ -39,6 +39,6 @@ public class CleanupMvpMessagesAction(
             logger.LogWarning(ex, "Failed to cleanup a message");
         }
 
-        MvpMessagesCleanupRepository.RemoveMessageToCleanup(mvpMessageReference);
+        mvpMessagesCleanupRepository.RemoveMessageToCleanup(mvpMessageReference);
     }
 }
