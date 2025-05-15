@@ -1,10 +1,11 @@
 using System;
 using System.IO;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using Polly;
 
 public class MvpDatabase(
@@ -21,9 +22,10 @@ public class MvpDatabase(
         .Handle<Exception>()
         .WaitAndRetryForever(i => TimeSpan.FromSeconds(1));
 
-    private static readonly JsonSerializerSettings JsonSerializerSettings = new()
+    private static readonly JsonSerializerOptions JsonSerializerOptions = new()
     {
-        NullValueHandling = NullValueHandling.Include
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        WriteIndented = true
     };
 
     public async Task Load()
@@ -31,7 +33,7 @@ public class MvpDatabase(
         if (File.Exists(config.Value.SaveFile))
         {
             var loadData = await File.ReadAllTextAsync(config.Value.SaveFile);
-            _data = JsonConvert.DeserializeObject<MvpDatabaseModel>(loadData) ?? throw new Exception("Failed to deserialize the save file.");
+            _data = JsonSerializer.Deserialize<MvpDatabaseModel>(loadData) ?? throw new Exception("Failed to deserialize the save file.");
             logger.LogInformation("Loaded database.");
         }
         else
@@ -63,7 +65,7 @@ public class MvpDatabase(
         await _saveRetryPolicy.Execute(
             async () =>
             {
-                var data = JsonConvert.SerializeObject(_data, Formatting.Indented, JsonSerializerSettings);
+                var data = JsonSerializer.Serialize(_data, JsonSerializerOptions);
                 await File.WriteAllTextAsync(config.Value.SaveFile, data);
             }
         );

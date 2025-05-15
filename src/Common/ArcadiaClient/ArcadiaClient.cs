@@ -1,8 +1,9 @@
 using System;
+using System.IO;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 
 public class ArcadiaClient
 {
@@ -22,7 +23,13 @@ public class ArcadiaClient
         var response = await _httpClient.GetAsync("market/list");
         response.EnsureSuccessStatusCode();
         var body = await response.Content.ReadAsStringAsync();
-        return JsonConvert.DeserializeObject<Market>(body) ?? throw new Exception("Failed to deserialize the Market from the API.");
+        return JsonSerializer.Deserialize<Market>(body) ?? throw new Exception("Failed to deserialize the Market from the API.");
+    }
+
+    public async Task<Market> GetMarketListingSampleData()
+    {
+        var body = File.ReadAllText($"SampleData/market_response_sample.json");
+        return JsonSerializer.Deserialize<Market>(body) ?? throw new Exception("Failed to deserialize the Market from the API.");
     }
 
     public Market BuildFakeData()

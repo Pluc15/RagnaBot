@@ -14,20 +14,20 @@ public record ShopItem
     public required int Price { get; init; }
 
     [JsonPropertyName("refine")]
-    public required int? Refine { get; init; }
+    public int? Refine { get; init; }
 
     [JsonPropertyName("cards")]
-    public required List<int> Cards { get; init; }
+    public List<int>? Cards { get; init; }
 
     [JsonPropertyName("star_crumbs")]
-    public required int? StarCrumbs { get; init; }
+    public int? StarCrumbs { get; init; }
 
     [JsonPropertyName("element")]
-    public required string? Element { get; init; }
+    public string? Element { get; init; }
 
     [JsonPropertyName("creator")]
-    public required int? Creator { get; init; }
+    public int? Creator { get; init; }
 
     [JsonPropertyName("beloved")]
-    public required Boolean? Beloved { get; init; }
+    public Boolean? Beloved { get; init; }
 }

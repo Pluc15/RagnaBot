@@ -26,7 +26,6 @@ public class MarketModule(
         logger.LogInformation("Starting the MarketModule");
         while (!ct.IsCancellationRequested)
         {
-            await Task.Delay(TimeSpan.FromMinutes(11), ct);
             try
             {
                 await updateMarketAction.Run();
@@ -36,6 +35,7 @@ public class MarketModule(
             {
                 logger.LogError(ex, ex.Message);
             }
+            await Task.Delay(TimeSpan.FromMinutes(11), ct);
         }
     }
 

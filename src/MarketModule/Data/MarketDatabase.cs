@@ -1,10 +1,11 @@
 using System;
 using System.IO;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using Polly;
 
 public class MarketDatabase(
@@ -29,9 +30,10 @@ public class MarketDatabase(
         .Handle<Exception>()
         .WaitAndRetryForever(i => TimeSpan.FromSeconds(1));
 
-    private static readonly JsonSerializerSettings JsonSerializerSettings = new()
+    private static readonly JsonSerializerOptions JsonSerializerOptions = new()
     {
-        NullValueHandling = NullValueHandling.Include
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        WriteIndented = true
     };
 
     public async Task Load()
@@ -39,7 +41,7 @@ public class MarketDatabase(
         if (File.Exists(config.Value.MarketSaveFile))
         {
             var loadData = await File.ReadAllTextAsync(config.Value.MarketSaveFile);
-            _data = JsonConvert.DeserializeObject<Market>(loadData) ?? throw new Exception("Failed to deserialize the market save file.");
+            _data = JsonSerializer.Deserialize<Market>(loadData) ?? throw new Exception("Failed to deserialize the market save file.");
             logger.LogInformation("Loaded market database.");
         }
         else
@@ -71,7 +73,7 @@ public class MarketDatabase(
         await _saveRetryPolicy.Execute(
             async () =>
             {
-                var data = JsonConvert.SerializeObject(_data, Formatting.Indented, JsonSerializerSettings);
+                var data = JsonSerializer.Serialize(_data, JsonSerializerOptions);
                 await File.WriteAllTextAsync(config.Value.MarketSaveFile, data);
             }
         );
