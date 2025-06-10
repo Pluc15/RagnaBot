@@ -44,7 +44,7 @@ public class EvaluateMarketWatchersAction(
         if (triggeredMarketWatchers.Count == 0)
             return;
 
-        var snoozeDuration = TimeSpan.FromHours(12);
+        var snoozeDuration = TimeSpan.FromHours(6);
         await SendAlerts(triggeredMarketWatchers, snoozeDuration);
 
         foreach (var (watcher, shopItem, shop, itemInfo) in triggeredMarketWatchers)

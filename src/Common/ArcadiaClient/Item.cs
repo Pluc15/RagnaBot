@@ -29,5 +29,10 @@ public record ShopItem
     public int? Creator { get; init; }
 
     [JsonPropertyName("beloved")]
-    public Boolean? Beloved { get; init; }
+    public bool? Beloved { get; init; }
+
+    public override string ToString()
+    {
+        return $"ItemId: {ItemId}, Amount: {Amount}, Price: {Price}, Refine: {Refine}, Cards: [{string.Join(", ", Cards ?? new List<int>())}], StarCrumbs: {StarCrumbs}, Element: {Element}, Creator: {Creator}, Beloved: {Beloved}";
+    }
 }

@@ -3,6 +3,7 @@ using Microsoft.Extensions.Hosting;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Discord;
+using Microsoft.Extensions.Logging;
 
 public static class DependencyInjection
 {
@@ -15,6 +16,18 @@ public static class DependencyInjection
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
+        // Monitoring
+        builder.Services.AddLogging(loggingBuilder =>
+        {
+            loggingBuilder.ClearProviders();
+            loggingBuilder.AddSimpleConsole(options =>
+            {
+                options.IncludeScopes = false;
+                options.SingleLine = true;
+                options.TimestampFormat = "HH:mm:ss ";
+            });
+        });
+
         // Add a generic service provider
         builder.Services.AddSingleton(sp => sp);
 
@@ -23,14 +36,6 @@ public static class DependencyInjection
         builder.Services.AddSingleton<ItemInfoDatabase>();
         builder.Services.AddSingleton<MarketDatabase>();
         builder.Services.AddSingleton<MvpInfoDatabase>();
-
-        // Modules
-        builder.RegisterMvpServices();
-        builder.RegisterMarketServices();
-        builder.Services.AddSingleton<TimeTagModule>();
-
-        // Workers
-        builder.Services.AddHostedService<Worker>();
 
         // Arcadia Client
         builder.Services.AddHttpClient<ArcadiaClient>();
@@ -44,6 +49,14 @@ public static class DependencyInjection
         builder.Services.AddSingleton<DiscordSocketClient>();
         builder.Services.AddSingleton(sp => new InteractionService(sp.GetService<DiscordSocketClient>()));
         builder.Services.AddSingleton<DiscordConnection>();
+
+        // Modules
+        builder.RegisterMvpServices();
+        builder.RegisterMarketServices();
+        builder.Services.AddSingleton<TimeTagModule>();
+
+        // Workers
+        builder.Services.AddHostedService<Worker>();
 
         return builder;
     }

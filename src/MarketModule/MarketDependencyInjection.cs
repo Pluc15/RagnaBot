@@ -11,7 +11,6 @@ public static class MarketDependencyInjection
 
         // Repositories
         builder.Services.AddSingleton<ItemInfoRepository>();
-        builder.Services.AddSingleton<MarketConfigRepository>();
         builder.Services.AddSingleton<MarketListingRepository>();
         builder.Services.AddSingleton<MarketWatcherRepository>();
 
@@ -21,7 +20,6 @@ public static class MarketDependencyInjection
         builder.Services.AddSingleton<EvaluateMarketWatchersAction>();
         builder.Services.AddSingleton<GetWatchersForUserAction>();
         builder.Services.AddSingleton<UpdateMarketAction>();
-        builder.Services.AddSingleton<UpdateMarketConfigurationAction>();
 
         // Modules
         builder.Services.AddSingleton<MarketModule>();
