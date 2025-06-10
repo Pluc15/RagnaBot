@@ -1,8 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 
@@ -15,51 +13,41 @@ public class EvaluateMarketWatchersAction(
 {
     public async Task Run()
     {
-        var triggeredMarketWatchers = marketWatcherRepository
-            .GetAllMarketWatchers()
-            .Where(watcher => watcher.SnoozedUntil == null || DateTime.UtcNow > watcher.SnoozedUntil)
-            .Select(
-                watcher =>
-                {
-                    var (shop, shopItem) = marketListingRepository.GetMarketLowestPrice(
-                        watcher.ItemId,
-                        watcher.MaximumPrice,
-                        watcher.MinimumQuantity
-                    );
-                    return (Watcher: watcher, ShopItem: shopItem, Shop: shop);
-                }
-            )
-            .Where(o => o.ShopItem != null)
-            .Select(
-                watcher =>
-                {
-                    var itemInfo = itemInfoRepository.Search(watcher.ShopItem.ItemId) ?? throw new ItemInfoNotFoundException(watcher.ShopItem.ItemId);
-                    return (watcher.Watcher, watcher.ShopItem, watcher.Shop, ItemInfo: itemInfo);
-                }
-            )
-            .ToList();
+        int triggeredWatchers = 0;
 
-        logger.LogInformation($"'{triggeredMarketWatchers.Count}' watchers conditions met.");
-
-        if (triggeredMarketWatchers.Count == 0)
-            return;
-
-        var snoozeDuration = TimeSpan.FromHours(6);
-        await SendAlerts(triggeredMarketWatchers, snoozeDuration);
-
-        foreach (var (watcher, shopItem, shop, itemInfo) in triggeredMarketWatchers)
-            marketWatcherRepository.Snooze(watcher.UserId, watcher.ItemId, snoozeDuration);
-
-        logger.LogInformation($"'{triggeredMarketWatchers.Count}' watchers notifications sent.");
-    }
-
-    private async Task SendAlerts(List<(MarketWatcher Watcher, ShopItem ShopItem, Shop Shop, ItemInfo ItemInfo)> triggeredMarketWatchers, TimeSpan snoozeDuration)
-    {
-        foreach (var (watcher, shopItem, shop, itemInfo) in triggeredMarketWatchers)
+        foreach (var watcher in marketWatcherRepository.GetAllMarketWatchers())
         {
+            var itemInfo = itemInfoRepository.Search(watcher.ItemId) ?? throw new ItemInfoNotFoundException(watcher.ItemId);
+
+            var shops = marketListingRepository.Search(
+                watcher.ItemId,
+                watcher.MaximumPrice,
+                watcher.MinimumQuantity
+            );
+
+            if (!shops.Any())
+                continue;
+
+            triggeredWatchers++;
+
             var user = await discordClient.GetUserAsync(watcher.UserId) ?? throw new Exception("User not found");
-            var discordMessage = DiscordMessages.MarketWatcherTriggered(watcher, shopItem, shop, itemInfo, snoozeDuration);
-            await DiscordMessages.Send(user, discordMessage);
+
+            logger.LogInformation($"Market watcher triggered: {watcher}");
+
+            foreach (var shop in shops)
+            {
+                var discordMessage = DiscordMessages.MarketWatcherTriggered(watcher, shop.ShopItem, shop.Shop, itemInfo);
+
+                await DiscordMessages.Send(user, discordMessage);
+            }
+
+            marketWatcherRepository.UpdateShopsNotified(
+                watcher.UserId,
+                watcher.ItemId,
+                shops.Select(shop => shop.Shop.GetShopId()).ToList()
+            );
         }
+
+        logger.LogInformation($"Market watchers evaluated. {triggeredWatchers} watchers triggered.");
     }
 }

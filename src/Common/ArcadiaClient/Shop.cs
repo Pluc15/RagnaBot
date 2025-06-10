@@ -22,6 +22,11 @@ public record Shop
     [JsonPropertyName("items")]
     public required List<ShopItem> Items { get; init; }
 
+    public string GetShopId()
+    {
+        return $"{Owner}_{CreationDate:yyyyMMddHHmmss}";
+    }
+
     public override string ToString()
     {
         return $"Title: {Title}, Owner: {Owner}, Location: {Location}, CreationDate: {CreationDate}, Type: {Type}, ItemsCount: {Items.Count}";

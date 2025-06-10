@@ -1,4 +1,4 @@
-using System;
+using System.Collections.Generic;
 
 public class MarketWatcher
 {
@@ -10,10 +10,10 @@ public class MarketWatcher
 
     public int MinimumQuantity { get; set; } = 1; // Default value for backward compatibility when loading old watchers
 
-    public DateTime? SnoozedUntil { get; set; }
+    public List<string> ShopsNotified { get; set; } = [];
 
     public override string ToString()
     {
-        return $"UserId: {UserId}, ItemId: {ItemId}, MaximumPrice: {MaximumPrice}, MinimumQuantity: {MinimumQuantity}, SnoozedUntil: {SnoozedUntil}";
+        return $"UserId: {UserId}, ItemId: {ItemId}, MaximumPrice: {MaximumPrice}, MinimumQuantity: {MinimumQuantity}, ShopsNotified: [{string.Join(", ", ShopsNotified)}]";
     }
 }

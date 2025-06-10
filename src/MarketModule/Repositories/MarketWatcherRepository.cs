@@ -52,14 +52,14 @@ public class MarketWatcherRepository(Database db)
         return db.Data.MarketWatchers.ToList();
     }
 
-    public void Snooze(
+    public void UpdateShopsNotified(
         ulong userId,
         int itemId,
-        TimeSpan snoozeDuration
+        List<string> shopsNotified
     )
     {
         var watcher = db.Data.MarketWatchers.Single(o => o.UserId == userId && o.ItemId == itemId);
-        watcher.SnoozedUntil = DateTime.UtcNow.Add(snoozeDuration);
+        watcher.ShopsNotified = shopsNotified;
         db.Dirty = true;
     }
 

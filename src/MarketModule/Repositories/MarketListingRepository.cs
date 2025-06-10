@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using InfluxDB.Client;
@@ -8,7 +9,7 @@ using Microsoft.Extensions.Options;
 
 public class MarketListingRepository(MarketDatabase db, IOptions<Config> config)
 {
-    public (Shop Shop, ShopItem ShopItem) GetMarketLowestPrice(
+    public IEnumerable<(Shop Shop, ShopItem ShopItem)> Search(
         int itemId,
         int maximumPrice,
         int minimumQuantity
@@ -32,8 +33,7 @@ public class MarketListingRepository(MarketDatabase db, IOptions<Config> config)
                 l.ShopItem.Price <= maximumPrice &&
                 l.ShopItem.Amount >= minimumQuantity
             )
-            .OrderBy(l => l.ShopItem.Price)
-            .FirstOrDefault();
+            .OrderBy(l => l.ShopItem.Price);
     }
 
     public async Task UpdateAsync(Market marketListing)

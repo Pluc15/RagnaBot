@@ -67,16 +67,14 @@ public static partial class DiscordMessages
         MarketWatcher watcher,
         ShopItem shopItem,
         Shop shop,
-        ItemInfo itemInfo,
-        TimeSpan snoozeDuration
+        ItemInfo itemInfo
     )
     {
         var embedBuilder = new EmbedBuilder()
             .WithTitle(itemInfo.Name)
             .WithThumbnailUrl(ArcadiaRoUrlBuilder.GetItemImageUrl(shopItem.ItemId))
             .WithUrl(ArcadiaRoUrlBuilder.GetItemInfoUrl(shopItem.ItemId))
-            .WithDescription($":bell: Market watcher triggered\n"
-                + $"Watcher snoozed for {snoozeDuration.TotalHours}h :zzz:")
+            .WithDescription($":bell: Market watcher triggered")
             .AddField("Item Id", shopItem.ItemId.ToString(), true)
             .AddField("Item Price", shopItem.Price.ToString(), true)
             .AddField("Amount", shopItem.Amount.ToString(), true)
