@@ -25,6 +25,7 @@ public class MarketListingRepository(MarketDatabase db, IOptions<Config> config)
                     return (Shop: shop, ShopItem: item);
                 })
             .Where(l => l.ShopItem.ItemId == itemId)
+            .Where(l => l.Shop.Type == "V")
             .OrderBy(l => l.ShopItem.Price)
             .FirstOrDefault();
     }
