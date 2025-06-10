@@ -7,7 +7,6 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 
 public class EvaluateMarketWatchersAction(
-    MarketConfigRepository marketChannelRepository,
     MarketWatcherRepository marketWatcherRepository,
     MarketListingRepository marketListingRepository,
     ItemInfoRepository itemInfoRepository,
@@ -53,17 +52,11 @@ public class EvaluateMarketWatchersAction(
 
     private async Task SendAlerts(List<(MarketWatcher Watcher, ShopItem ShopItem, Shop Shop, ItemInfo ItemInfo)> triggeredMarketWatchers, TimeSpan snoozeDuration)
     {
-        ulong? marketTrackerChannelId = marketChannelRepository.GetMarketTrackerChannelId();
-        if (marketTrackerChannelId == null)
-        {
-            logger.LogWarning($"No channels to send market alert to.");
-            return;
-        }
-        var channel = await discordClient.GetChannelAsync(marketTrackerChannelId.Value) as IMessageChannel ?? throw new Exception("Market channel not found");
         foreach (var (watcher, shopItem, shop, itemInfo) in triggeredMarketWatchers)
         {
+            var user = await discordClient.GetUserAsync(watcher.UserId) ?? throw new Exception("User not found");
             var discordMessage = DiscordMessages.MarketWatcherTriggered(watcher, shopItem, shop, itemInfo, snoozeDuration);
-            await DiscordMessages.Send(channel, discordMessage);
+            await DiscordMessages.Send(user, discordMessage);
         }
     }
 }

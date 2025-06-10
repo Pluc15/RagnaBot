@@ -70,7 +70,7 @@ public static partial class DiscordMessages
             .WithThumbnailUrl(ArcadiaRoUrlBuilder.GetItemImageUrl(shopItem.ItemId))
             .WithUrl(ArcadiaRoUrlBuilder.GetItemInfoUrl(shopItem.ItemId))
             .WithDescription($":bell: Market watcher triggered\n"
-                + $"Watcher snoozed for ${snoozeDuration.TotalHours}h :zzz:")
+                + $"Watcher snoozed for {snoozeDuration.TotalHours}h :zzz:")
             .AddField("Item Id", shopItem.ItemId.ToString(), true)
             .AddField("Item Price", shopItem.Price.ToString(), true)
             .AddField("Shop", $"`@navshop {shop.Owner}`", true);

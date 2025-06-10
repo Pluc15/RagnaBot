@@ -9,7 +9,6 @@ using Microsoft.Extensions.Logging;
 [IntegrationType(ApplicationIntegrationType.GuildInstall)]
 [Group("market", "Market watcher")]
 public class MarketModule(
-        UpdateMarketConfigurationAction updateMarketConfigurationAction,
         AddWatcherAction addWatcherAction,
         DeleteWatcherAction deleteWatcherAction,
         GetWatchersForUserAction getWatchersForUserAction,
@@ -35,27 +34,6 @@ public class MarketModule(
                 logger.LogError(ex, ex.Message);
             }
             await Task.Delay(TimeSpan.FromMinutes(11), ct);
-        }
-    }
-
-    [SlashCommand("configure", "Configure the market watcher")]
-    [RequireUserPermission(GuildPermission.Administrator)]
-    public async Task Watch(
-        [Summary("channel", "The channel to send market alerts to")]
-        IChannel? channel)
-    {
-        try
-        {
-            // Process
-            updateMarketConfigurationAction.Run(channel);
-
-            // Respond
-            await RespondAsync(DiscordMessages.MarketConfigurationUpdated());
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, ex.Message);
-            await RespondAsync(DiscordMessages.UnexpectedError(ex));
         }
     }
 

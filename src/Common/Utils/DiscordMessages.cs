@@ -5,6 +5,14 @@ using Discord;
 // TODO Split the partial
 public static partial class DiscordMessages
 {
+    public static async Task<IUserMessage> Send(IUser user, DiscordMessage discordMessage)
+    {
+        return await user.SendMessageAsync(
+            discordMessage.Message,
+            embed: discordMessage.Embed,
+            allowedMentions: discordMessage.AllowedMentions);
+    }
+
     public static async Task<IUserMessage> Send(IMessageChannel channel, DiscordMessage discordMessage)
     {
         return await channel.SendMessageAsync(
