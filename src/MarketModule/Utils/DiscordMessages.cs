@@ -46,15 +46,21 @@ public static partial class DiscordMessages
     )
     {
         var sb = new StringBuilder();
+        sb.AppendLine("# Watch list");
+        sb.AppendLine("```");
+        sb.AppendLine("Item Name            | Item Id | Max Price    | Min Amount");
+        sb.AppendLine("-------------------- | ------- | ------------ | ----------");
 
         foreach (var watcher in watchers)
-            sb.AppendLine($"{watcher.ItemInfo.Name} - {watcher.Watcher.MaximumPrice}");
+            sb.AppendLine(
+                $"{watcher.ItemInfo.Name,-20} | " +
+                $"{watcher.ItemInfo.Id,-7} | " +
+                $"{watcher.Watcher.MaximumPrice,-12} | " +
+                $"{watcher.Watcher.MinimumQuantity,-10}"
+            );
+        sb.AppendLine("```");
 
-        var embedBuilder = new EmbedBuilder()
-            .WithTitle("Watch list")
-            .WithDescription(sb.ToString());
-
-        return new DiscordMessage(embed: embedBuilder.Build(), ephemeral: true);
+        return new DiscordMessage(message: sb.ToString(), ephemeral: true);
     }
 
     public static DiscordMessage MarketWatcherTriggered(
