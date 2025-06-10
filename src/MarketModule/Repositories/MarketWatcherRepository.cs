@@ -7,7 +7,8 @@ public class MarketWatcherRepository(Database db)
     public MarketWatcher AddOrReplace(
         ulong userId,
         int itemId,
-        int maximumPrice
+        int maximumPrice,
+        int minimumQuantity
     )
     {
         var watcher = db.Data.MarketWatchers.SingleOrDefault(w => w.UserId == userId && w.ItemId == itemId);
@@ -17,7 +18,8 @@ public class MarketWatcherRepository(Database db)
             {
                 UserId = userId,
                 ItemId = itemId,
-                MaximumPrice = maximumPrice
+                MaximumPrice = maximumPrice,
+                MinimumQuantity = minimumQuantity
             };
             db.Data.MarketWatchers.Add(watcher);
         }
@@ -26,6 +28,7 @@ public class MarketWatcherRepository(Database db)
             watcher.UserId = userId;
             watcher.ItemId = itemId;
             watcher.MaximumPrice = maximumPrice;
+            watcher.MinimumQuantity = minimumQuantity;
         }
 
         db.Dirty = true;

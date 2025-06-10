@@ -9,11 +9,12 @@ public class AddWatcherAction(
     public (ItemInfo ItemInfo, MarketWatcher Watcher) Run(
         IUser user,
         int itemId,
-        int maximumPrice
+        int maximumPrice,
+        int minimumQuantity
     )
     {
         var itemInfo = itemInfoRepository.Search(itemId) ?? throw new ItemInfoNotFoundException(itemId);
-        var watcher = marketWatcherRepository.AddOrReplace(user.Id, itemId, maximumPrice);
+        var watcher = marketWatcherRepository.AddOrReplace(user.Id, itemId, maximumPrice, minimumQuantity);
 
         logger.LogInformation($"Watcher created for user '{user.Username}' for item id '{itemId}' when price is equal or under '{maximumPrice}'");
 

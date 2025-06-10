@@ -21,12 +21,15 @@ public class EvaluateMarketWatchersAction(
             .Select(
                 watcher =>
                 {
-                    var (shop, shopItem) = marketListingRepository.GetMarketLowestPrice(watcher.ItemId);
+                    var (shop, shopItem) = marketListingRepository.GetMarketLowestPrice(
+                        watcher.ItemId,
+                        watcher.MaximumPrice,
+                        watcher.MinimumQuantity
+                    );
                     return (Watcher: watcher, ShopItem: shopItem, Shop: shop);
                 }
             )
             .Where(o => o.ShopItem != null)
-            .Where(o => o.Watcher.MaximumPrice >= o.ShopItem.Price)
             .Select(
                 watcher =>
                 {

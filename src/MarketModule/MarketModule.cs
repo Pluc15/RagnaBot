@@ -38,12 +38,12 @@ public class MarketModule(
     }
 
     [SlashCommand("add", "Add a watched item")]
-    public async Task Watch(int itemId, int maximumPrice)
+    public async Task Watch(int itemId, int maximumPrice, int minimumQuantity = 1)
     {
         try
         {
             // Process
-            var (itemInfo, watcher) = addWatcherAction.Run(Context.User, itemId, maximumPrice);
+            var (itemInfo, watcher) = addWatcherAction.Run(Context.User, itemId, maximumPrice, minimumQuantity);
 
             // Respond
             await RespondAsync(DiscordMessages.MarketWatcherCreated(itemInfo, watcher));

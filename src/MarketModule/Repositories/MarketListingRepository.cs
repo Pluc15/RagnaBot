@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using InfluxDB.Client;
 using InfluxDB.Client.Api.Domain;
@@ -9,7 +10,9 @@ using Microsoft.Extensions.Options;
 public class MarketListingRepository(MarketDatabase db, IOptions<Config> config)
 {
     public (Shop Shop, ShopItem ShopItem) GetMarketLowestPrice(
-        int itemId
+        int itemId,
+        int maximumPrice,
+        int minimumQuantity
     )
     {
         return db
@@ -24,8 +27,12 @@ public class MarketListingRepository(MarketDatabase db, IOptions<Config> config)
                 {
                     return (Shop: shop, ShopItem: item);
                 })
-            .Where(l => l.ShopItem.ItemId == itemId)
-            .Where(l => l.Shop.Type == "V")
+            .Where(l =>
+                l.Shop.Type == "V" &&
+                l.ShopItem.ItemId == itemId &&
+                l.ShopItem.Price <= maximumPrice &&
+                l.ShopItem.Amount >= minimumQuantity
+            )
             .OrderBy(l => l.ShopItem.Price)
             .FirstOrDefault();
     }

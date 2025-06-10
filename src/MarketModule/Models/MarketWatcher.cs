@@ -8,5 +8,7 @@ public class MarketWatcher
 
     public int MaximumPrice { get; set; }
 
+    public int MinimumQuantity { get; set; } = 1; // Default value for backward compatibility when loading old watchers
+
     public DateTime? SnoozedUntil { get; set; }
 }

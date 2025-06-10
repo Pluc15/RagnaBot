@@ -73,6 +73,7 @@ public static partial class DiscordMessages
                 + $"Watcher snoozed for {snoozeDuration.TotalHours}h :zzz:")
             .AddField("Item Id", shopItem.ItemId.ToString(), true)
             .AddField("Item Price", shopItem.Price.ToString(), true)
+            .AddField("Amount", shopItem.Amount.ToString(), true)
             .AddField("Shop", $"`@navshop {shop.Owner}`", true);
 
         return new DiscordMessage(
