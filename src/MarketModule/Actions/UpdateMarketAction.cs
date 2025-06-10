@@ -9,7 +9,7 @@ public class UpdateMarketAction(
     public async Task Run()
     {
         var marketListing = await arcadiaClient.GetMarketListing();
-        marketListingRepository.Update(marketListing);
+        await marketListingRepository.UpdateAsync(marketListing);
 
         logger.LogInformation("Market data updated.");
     }

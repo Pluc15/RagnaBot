@@ -18,4 +18,10 @@ public class Config
 
     [Required]
     public required Uri ArcadiaBaseUrl { get; set; }
+
+    [Required]
+    public required Uri InfluxDbUrl { get; set; }
+
+    [Required]
+    public required string InfluxDbToken { get; set; }
 }

@@ -9,7 +9,11 @@ public static class DependencyInjection
     public static HostApplicationBuilder RegisterServices(this HostApplicationBuilder builder)
     {
         // Config
-        builder.Services.Configure<Config>(builder.Configuration);
+        builder.Services
+            .AddOptions<Config>()
+            .Bind(builder.Configuration)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
 
         // Add a generic service provider
         builder.Services.AddSingleton(sp => sp);

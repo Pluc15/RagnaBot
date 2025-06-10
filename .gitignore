@@ -1,1 +1,7 @@
+.env
+db/
+bin/
+obj/
+Properties/
+appsettings.Production.json
 db/
