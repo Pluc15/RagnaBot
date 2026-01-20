@@ -663,6 +663,56 @@ public class MvpInfoDatabase()
             RespawnVariance = TimeSpan.FromMinutes(30),
             RespawnReminder = TimeSpan.FromMinutes(5),
             RagnarokId = 1631,
+        },
+        new MvpInfo
+        {
+            Id = "1785_ra_fild02",
+            MvpName = "Atroce",
+            Map = "ra_fild02",
+            RespawnDuration = TimeSpan.FromMinutes(240),
+            RespawnVariance = TimeSpan.FromMinutes(10),
+            RespawnReminder = TimeSpan.FromMinutes(5),
+            RagnarokId = 1785,
+        },
+        new MvpInfo
+        {
+            Id = "1785_ra_fild03",
+            MvpName = "Atroce",
+            Map = "ra_fild03",
+            RespawnDuration = TimeSpan.FromMinutes(180),
+            RespawnVariance = TimeSpan.FromMinutes(10),
+            RespawnReminder = TimeSpan.FromMinutes(5),
+            RagnarokId = 1785,
+        },
+        new MvpInfo
+        {
+            Id = "1785_ra_fild04",
+            MvpName = "Atroce",
+            Map = "ra_fild04",
+            RespawnDuration = TimeSpan.FromMinutes(300),
+            RespawnVariance = TimeSpan.FromMinutes(10),
+            RespawnReminder = TimeSpan.FromMinutes(5),
+            RagnarokId = 1785,
+        },
+        new MvpInfo
+        {
+            Id = "1768_ra_san05",
+            MvpName = "Gloom Under Night",
+            Map = "ra_san05",
+            RespawnDuration = TimeSpan.FromMinutes(300),
+            RespawnVariance = TimeSpan.FromMinutes(10),
+            RespawnReminder = TimeSpan.FromMinutes(5),
+            RagnarokId = 1768,
+        },
+        new MvpInfo
+        {
+            Id = "1779_ice_dun03",
+            MvpName = "Ktullanux",
+            Map = "ice_dun03",
+            RespawnDuration = TimeSpan.FromMinutes(240),
+            RespawnVariance = TimeSpan.FromMinutes(10),
+            RespawnReminder = TimeSpan.FromMinutes(5),
+            RagnarokId = 1779,
         }
     ];
 }
