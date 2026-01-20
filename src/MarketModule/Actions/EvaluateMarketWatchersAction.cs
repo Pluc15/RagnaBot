@@ -28,6 +28,12 @@ public class EvaluateMarketWatchersAction(
             if (!shops.Any())
                 continue;
 
+            if (shops.All(shop => watcher.ShopsNotified.Contains(shop.Shop.GetShopId())))
+            {
+                logger.LogInformation($"Watcher matched but all shops are already notified: {watcher}");
+                continue;
+            }
+
             triggeredWatchers++;
 
             var user = await discordClient.GetUserAsync(watcher.UserId) ?? throw new Exception("User not found");
