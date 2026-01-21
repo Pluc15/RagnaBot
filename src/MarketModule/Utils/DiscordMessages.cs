@@ -138,10 +138,11 @@ public static partial class DiscordMessages
     }
 
     public static DiscordMessage VendorStartedVending(
-        Shop newShop
+        Shop newShop,
+        IEnumerable<(ItemInfo ItemInfo, int Quantity, int Price)> newShopItems
     )
     {
-        var newShopItemsString = BuildShopItemsTable(newShop);
+        var newShopItemsString = BuildItemsTable(newShopItems);
 
         var embed = new EmbedBuilder()
             .WithDescription($":shopping_trolley: Vendor started vending")
@@ -172,11 +173,13 @@ public static partial class DiscordMessages
 
     public static DiscordMessage VendorRefreshedShop(
         Shop previousShop,
-        Shop newShop
+        IEnumerable<(ItemInfo ItemInfo, int Quantity, int Price)> previousShopItems,
+        Shop newShop,
+        IEnumerable<(ItemInfo ItemInfo, int Quantity, int Price)> newShopItems
     )
     {
-        var previousShopItemsString = BuildShopItemsTable(previousShop);
-        var newShopItemsString = BuildShopItemsTable(newShop);
+        var previousShopItemsString = BuildItemsTable(previousShopItems);
+        var newShopItemsString = BuildItemsTable(newShopItems);
 
         var embed = new EmbedBuilder()
             .WithDescription($":recycle: Vendor is refreshing his shop")
@@ -190,10 +193,11 @@ public static partial class DiscordMessages
     }
 
     public static DiscordMessage VendorStoppedVending(
-        Shop previousShop
+        Shop previousShop,
+        IEnumerable<(ItemInfo ItemInfo, int Quantity, int Price)> previousShopItems
     )
     {
-        var previousShopItemsString = BuildShopItemsTable(previousShop);
+        var previousShopItemsString = BuildItemsTable(previousShopItems);
 
         var embed = new EmbedBuilder()
             .WithDescription(":stop_sign: Vendor stopped vending or sold out")
@@ -205,7 +209,9 @@ public static partial class DiscordMessages
         return new DiscordMessage(embed: embed);
     }
 
-    private static StringBuilder BuildItemsTable(IEnumerable<(ItemInfo ItemInfo, int Quantity, int Price)> soldItems)
+    private static StringBuilder BuildItemsTable(
+        IEnumerable<(ItemInfo ItemInfo, int Quantity, int Price)> soldItems
+    )
     {
         var itemsString = new StringBuilder();
         itemsString.AppendLine("");
@@ -214,19 +220,6 @@ public static partial class DiscordMessages
         itemsString.AppendLine("------------------------- | --- | -----");
         foreach (var soldItem in soldItems)
             itemsString.AppendLine($"{soldItem.ItemInfo.Name,-25} | {soldItem.Quantity,3} | {soldItem.Price,5}");
-        itemsString.AppendLine("```");
-
-        return itemsString;
-    }
-
-    private static StringBuilder BuildShopItemsTable(Shop shop)
-    {
-        var itemsString = new StringBuilder();
-        itemsString.AppendLine("```");
-        itemsString.AppendLine("Item Name                 | Qty | Price");
-        itemsString.AppendLine("------------------------- | --- | -----");
-        foreach (var item in shop.Items)
-            itemsString.AppendLine($"{item.ItemId,-25} | {item.Amount,3} | {item.Price,5}");
         itemsString.AppendLine("```");
 
         return itemsString;

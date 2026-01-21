@@ -33,7 +33,7 @@ public class EvaluateVendorWatchersAction(
                 logger.LogInformation($"Vendor started vending: {updatedWatcher}");
 
                 var user = await discordClient.GetUserAsync(updatedWatcher.UserId) ?? throw new Exception("User not found");
-                var discordMessage = DiscordMessages.VendorStartedVending(currentShop);
+                var discordMessage = DiscordMessages.VendorStartedVending(currentShop, BuildLitOfItems(currentShop));
                 await DiscordMessages.Send(user, discordMessage);
 
                 triggeredWatchers++;
@@ -67,7 +67,7 @@ public class EvaluateVendorWatchersAction(
                 logger.LogInformation($"Vendor refreshed vending:\n{watcher}\n{updatedWatcher}");
 
                 var user = await discordClient.GetUserAsync(updatedWatcher.UserId) ?? throw new Exception("User not found");
-                var discordMessage = DiscordMessages.VendorRefreshedShop(watcher.LastKnownShop, currentShop);
+                var discordMessage = DiscordMessages.VendorRefreshedShop(watcher.LastKnownShop, BuildLitOfItems(watcher.LastKnownShop), currentShop, BuildLitOfItems(currentShop));
                 await DiscordMessages.Send(user, discordMessage);
 
                 triggeredWatchers++;
@@ -82,7 +82,7 @@ public class EvaluateVendorWatchersAction(
                 logger.LogInformation($"Vendor stopped vending:\n{watcher}");
 
                 var user = await discordClient.GetUserAsync(updatedWatcher.UserId) ?? throw new Exception("User not found");
-                var discordMessage = DiscordMessages.VendorStoppedVending(watcher.LastKnownShop);
+                var discordMessage = DiscordMessages.VendorStoppedVending(watcher.LastKnownShop, BuildLitOfItems(watcher.LastKnownShop));
                 await DiscordMessages.Send(user, discordMessage);
 
                 triggeredWatchers++;
@@ -117,5 +117,14 @@ public class EvaluateVendorWatchersAction(
                 currentShop = currentShop with { Items = currentShop.Items.Remove(currentItem) };
         }
         return soldItems;
+    }
+
+    private IEnumerable<(ItemInfo ItemInfo, int Quantity, int Price)> BuildLitOfItems(Shop shop)
+    {
+        return shop.Items.Select(shopItem => (
+            ItemInfo: itemInfoRepository.Search(shopItem.ItemId) ?? throw new Exception("ItemInfo not found"),
+            Quantity: shopItem.Amount,
+            shopItem.Price
+        ));
     }
 }
