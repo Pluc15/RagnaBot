@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 public class Worker(
     Database database,
     MarketDatabase marketDatabase,
-    MarketModule marketModule,
+    MarketDataJob marketDataJob,
     MvpModule mvpModule,
     DiscordConnection discordConnection,
     ILogger<Worker> logger) : IHostedService
@@ -21,7 +21,7 @@ public class Worker(
         await Task.WhenAny(
             database.StartSaveWatcher(cancellationToken),
             marketDatabase.StartSaveWatcher(cancellationToken),
-            marketModule.Start(cancellationToken),
+            marketDataJob.Start(cancellationToken),
             mvpModule.Start(cancellationToken)
         );
     }

@@ -11,6 +11,9 @@ A multi featured Ragnarok Discord bot for Arcadia.
 /market add <item-id> <maximum-price>
 /market remove <item-id>
 /market list
+/vendor add <vendor-name>
+/vendor remove <vendor-name>
+/vendor list
 /timetag timezone iso_datetime
 ```
 

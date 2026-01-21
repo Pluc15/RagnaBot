@@ -1,5 +1,6 @@
 using System;
-using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using System.Text.Json.Serialization;
 
 public record Shop
@@ -20,7 +21,7 @@ public record Shop
     public required string Type { get; init; }
 
     [JsonPropertyName("items")]
-    public required List<ShopItem> Items { get; init; }
+    public required ImmutableList<ShopItem> Items { get; init; }
 
     public string GetShopId()
     {
@@ -29,6 +30,6 @@ public record Shop
 
     public override string ToString()
     {
-        return $"Title: {Title}, Owner: {Owner}, Location: {Location}, CreationDate: {CreationDate}, Type: {Type}, ItemsCount: {Items.Count}";
+        return $"Title: {Title}, Owner: {Owner}, Location: {Location}, CreationDate: {CreationDate}, Type: {Type}, Items: {string.Join(", ", Items.Select(i => i.ItemId))}";
     }
 }

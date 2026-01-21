@@ -36,6 +36,16 @@ public class MarketListingRepository(MarketDatabase db, IOptions<Config> config)
             .OrderBy(l => l.ShopItem.Price);
     }
 
+    public Shop? GetShopByVendorName(
+        string vendorName
+    )
+    {
+        return db
+            .Data
+            .Shops
+            .SingleOrDefault(shop => shop.Owner.Equals(vendorName, StringComparison.OrdinalIgnoreCase));
+    }
+
     public async Task UpdateAsync(Market marketListing)
     {
         db.Data = marketListing;

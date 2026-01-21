@@ -2,7 +2,6 @@ using System;
 using System.Threading.Tasks;
 using Discord;
 
-// TODO Split the partial
 public static partial class DiscordMessages
 {
     public static async Task<IUserMessage> Send(IUser user, DiscordMessage discordMessage)

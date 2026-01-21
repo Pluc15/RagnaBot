@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Discord;
 
@@ -100,5 +101,134 @@ public static partial class DiscordMessages
          ItemInfoNotFoundException ex)
     {
         return new DiscordMessage($":warning: Unknown item id '{ex.ItemId}'. Did you use the correct item id?", ephemeral: true);
+    }
+
+    public static DiscordMessage VendorWatcherAdded(VendorWatcher watcher)
+    {
+        var embed = new EmbedBuilder()
+            .WithTitle($"Vendor watcher added: {watcher.VendorName}")
+            .WithDescription(":white_check_mark: Vendor watcher registered")
+            .AddField("Vendor", watcher.VendorName, true)
+            .AddField("User", Formatter.FormatUserMention(watcher.UserId), true)
+            .Build();
+
+        return new DiscordMessage(embed: embed, ephemeral: true);
+    }
+
+    public static DiscordMessage VendorWatcherRemoved(string vendorName)
+    {
+        var embed = new EmbedBuilder()
+            .WithTitle($"Vendor watcher removed: {vendorName}")
+            .WithDescription(":x: Vendor watcher removed")
+            .AddField("Vendor", vendorName, true)
+            .Build();
+
+        return new DiscordMessage(embed: embed, ephemeral: true);
+    }
+
+    public static DiscordMessage VendorWatcherList(IEnumerable<VendorWatcher> watchers)
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine("# Vendor Watchers");
+
+        foreach (var w in watchers)
+            sb.AppendLine($"- {w.VendorName}");
+
+        return new DiscordMessage(message: sb.ToString(), ephemeral: true);
+    }
+
+    public static DiscordMessage VendorStartedVending(
+        Shop newShop
+    )
+    {
+        var newShopItemsString = BuildShopItemsTable(newShop);
+
+        var embed = new EmbedBuilder()
+            .WithDescription($":shopping_trolley: Vendor started vending")
+            .AddField("Vendor", newShop.Owner, true)
+            .AddField("Shop", newShop.Title, true)
+            .AddField("New items for sale", newShopItemsString.ToString(), false)
+            .Build();
+
+        return new DiscordMessage(embed: embed);
+    }
+
+    public static DiscordMessage VendorSoldItems(
+        Shop shop,
+        IEnumerable<(ItemInfo ItemInfo, int Quantity, int Price)> soldItems
+    )
+    {
+        var soldItemsString = BuildItemsTable(soldItems);
+
+        var embed = new EmbedBuilder()
+            .WithDescription($":moneybag: Vendor sold items")
+            .AddField("Vendor", shop.Owner, true)
+            .AddField("Shop", shop.Title, true)
+            .AddField("Sold items", soldItemsString.ToString(), false)
+            .Build();
+
+        return new DiscordMessage(embed: embed);
+    }
+
+    public static DiscordMessage VendorRefreshedShop(
+        Shop previousShop,
+        Shop newShop
+    )
+    {
+        var previousShopItemsString = BuildShopItemsTable(previousShop);
+        var newShopItemsString = BuildShopItemsTable(newShop);
+
+        var embed = new EmbedBuilder()
+            .WithDescription($":recycle: Vendor is refreshing his shop")
+            .AddField("Vendor", previousShop.Owner, true)
+            .AddField("Shop", previousShop.Title, true)
+            .AddField("Potentially sold items", previousShopItemsString.ToString(), false)
+            .AddField("New items for sale", newShopItemsString.ToString(), false)
+            .Build();
+
+        return new DiscordMessage(embed: embed);
+    }
+
+    public static DiscordMessage VendorStoppedVending(
+        Shop previousShop
+    )
+    {
+        var previousShopItemsString = BuildShopItemsTable(previousShop);
+
+        var embed = new EmbedBuilder()
+            .WithDescription(":stop_sign: Vendor stopped vending or sold out")
+            .AddField("Vendor", previousShop.Owner, true)
+            .AddField("Shop", previousShop.Title, true)
+            .AddField("Potentially sold items", previousShopItemsString.ToString(), false)
+            .Build();
+
+        return new DiscordMessage(embed: embed);
+    }
+
+    private static StringBuilder BuildItemsTable(IEnumerable<(ItemInfo ItemInfo, int Quantity, int Price)> soldItems)
+    {
+        var itemsString = new StringBuilder();
+        itemsString.AppendLine("");
+        itemsString.AppendLine("```");
+        itemsString.AppendLine("Item Name                 | Qty | Price");
+        itemsString.AppendLine("------------------------- | --- | -----");
+        foreach (var soldItem in soldItems)
+            itemsString.AppendLine($"{soldItem.ItemInfo.Name,-25} | {soldItem.Quantity,3} | {soldItem.Price,5}");
+        itemsString.AppendLine("```");
+
+        return itemsString;
+    }
+
+    private static StringBuilder BuildShopItemsTable(Shop shop)
+    {
+        var itemsString = new StringBuilder();
+        itemsString.AppendLine("```");
+        itemsString.AppendLine("Item Name                 | Qty | Price");
+        itemsString.AppendLine("------------------------- | --- | -----");
+        foreach (var item in shop.Items)
+            itemsString.AppendLine($"{item.ItemId,-25} | {item.Amount,3} | {item.Price,5}");
+        itemsString.AppendLine("```");
+
+        return itemsString;
     }
 }

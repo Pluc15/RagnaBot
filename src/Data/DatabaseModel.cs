@@ -11,4 +11,6 @@ public class DatabaseModel
     public List<MvpMessageReference> MvpMessagesToCleanup { get; set; } = [];
 
     public List<MarketWatcher> MarketWatchers { get; set; } = [];
+
+    public List<VendorWatcher> VendorWatchers { get; set; } = [];
 }

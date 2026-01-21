@@ -19,6 +19,7 @@ public class DiscordConnection(
     {
         await interactionService.AddModuleAsync<MvpModule>(servicesProvider);
         await interactionService.AddModuleAsync<MarketModule>(servicesProvider);
+        await interactionService.AddModuleAsync<VendorModule>(servicesProvider);
         await interactionService.AddModuleAsync<TimeTagModule>(servicesProvider);
 
         discordClient.InteractionCreated += DiscordInteractionCreated;

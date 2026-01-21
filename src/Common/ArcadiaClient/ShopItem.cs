@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json.Serialization;
 
 public record ShopItem
@@ -34,5 +35,22 @@ public record ShopItem
     public override string ToString()
     {
         return $"ItemId: {ItemId}, Amount: {Amount}, Price: {Price}, Refine: {Refine}, Cards: [{string.Join(", ", Cards ?? new List<int>())}], StarCrumbs: {StarCrumbs}, Element: {Element}, Creator: {Creator}, Beloved: {Beloved}";
+    }
+
+    public bool IsSameShopItemRowAs(ShopItem otherItem)
+    {
+        if (otherItem == null) return false;
+
+        return ItemId == otherItem.ItemId &&
+               Refine == otherItem.Refine &&
+               Price == otherItem.Price &&
+               StarCrumbs == otherItem.StarCrumbs &&
+               Element == otherItem.Element &&
+               Creator == otherItem.Creator &&
+               Beloved == otherItem.Beloved &&
+               (
+                 (Cards == null && otherItem.Cards == null) ||
+                 (Cards != null && otherItem.Cards != null && string.Join("|", Cards) == string.Join("|", otherItem.Cards))
+               );
     }
 }

@@ -1,5 +1,4 @@
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Interactions;
@@ -12,33 +11,11 @@ public class MarketModule(
         AddWatcherAction addWatcherAction,
         DeleteWatcherAction deleteWatcherAction,
         GetWatchersForUserAction getWatchersForUserAction,
-        UpdateMarketAction updateMarketAction,
-        EvaluateMarketWatchersAction evaluateMarketWatchersAction,
         ILogger<MarketModule> logger
     ) : BaseModule
 {
-    public async Task Start(
-        CancellationToken ct
-    )
-    {
-        logger.LogInformation("Starting the MarketModule");
-        while (!ct.IsCancellationRequested)
-        {
-            try
-            {
-                await updateMarketAction.Run();
-                await evaluateMarketWatchersAction.Run();
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, ex.Message);
-            }
-            await Task.Delay(TimeSpan.FromMinutes(11), ct);
-        }
-    }
-
     [SlashCommand("add", "Add a watched item")]
-    public async Task Watch(int itemId, int maximumPrice, int minimumQuantity = 1)
+    public async Task Add(int itemId, int maximumPrice, int minimumQuantity = 1)
     {
         try
         {
@@ -61,7 +38,7 @@ public class MarketModule(
     }
 
     [SlashCommand("remove", "Stop watching an item")]
-    public async Task Unwatch(int itemId)
+    public async Task Remove(int itemId)
     {
         try
         {
@@ -89,7 +66,7 @@ public class MarketModule(
     }
 
     [SlashCommand("list", "List your watched items")]
-    public async Task Watchlist()
+    public async Task List()
     {
         try
         {
